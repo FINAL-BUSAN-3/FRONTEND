@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>헬로 월드 페이지</h1>
-    <p>여기는 / 경로에 해당하는 페이지입니다.</p>
+    <p>여기는 / 경로에 해당하는 페이지입니다.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</p>
     <router-link to="/test">
       <button>Go To Test Page</button>
     </router-link>

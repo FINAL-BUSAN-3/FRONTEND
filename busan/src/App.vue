@@ -1,8 +1,8 @@
 <template>
-  <div id="app" @click="handleOutsideClick">
-    <NavigationBar :isSidebarOpen="isSidebarOpen" /> <!-- 네비게이션 바 추가 -->
+  <div id="app">
+    <NavigationBar :isSidebarOpen="isSidebarOpen" class="sidebar" :class="{ open: isSidebarOpen }" /> <!-- 네비게이션 바 추가 -->
     <button class="toggle-button" @click.stop="toggleSidebar">{{ isSidebarOpen ? '◁' : '▷' }}</button> <!-- 토글 버튼 추가 -->
-    <div class="main-content">
+    <div class="main-content" @click="handleMainContentClick"> <!-- 메인 콘텐츠 클릭 시 사이드바 닫기 -->
       <img alt="Vue logo" src="./assets/logo.png" />
       <router-view /> <!-- 현재 라우트에 따라 컴포넌트를 표시 -->
       <button @click="fetchTest">Fetch Test</button> <!-- Fetch 버튼 -->
@@ -23,7 +23,7 @@ export default {
   data() {
     return {
       apiMessage: '', // API 응답 메시지를 저장할 데이터
-      isSidebarOpen: true, // 사이드바의 열림/닫힘 상태
+      isSidebarOpen: localStorage.getItem('isSidebarOpen') === 'true', // 사이드바의 열림/닫힘 상태
     };
   },
   methods: {
@@ -38,10 +38,12 @@ export default {
     },
     toggleSidebar() {
       this.isSidebarOpen = !this.isSidebarOpen; // 사이드바 열기/닫기 상태 변경
+      localStorage.setItem('isSidebarOpen', this.isSidebarOpen); // 사이드바 상태를 로컬 스토리지에 저장
     },
-    handleOutsideClick(event) {
-      if (this.isSidebarOpen && !event.target.closest('.sidebar') && !event.target.closest('.toggle-button')) {
-        this.isSidebarOpen = false; // 사이드바 닫기
+    handleMainContentClick() {
+      if (this.isSidebarOpen) {
+        this.isSidebarOpen = false; // 메인 콘텐츠 클릭 시 사이드바 닫기
+        localStorage.setItem('isSidebarOpen', this.isSidebarOpen); // 사이드바 상태를 로컬 스토리지에 저장
       }
     },
   },
@@ -88,10 +90,10 @@ export default {
   color: #fff;
   z-index: 1000;
   transition: transform 0.3s ease;
-  transform: translateX(0);
+  transform: translateX(-100%);
 }
 
-.sidebar:not(.open) {
-  transform: translateX(-100%);
+.sidebar.open {
+  transform: translateX(0);
 }
 </style>
