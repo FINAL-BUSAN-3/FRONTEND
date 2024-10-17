@@ -1,11 +1,10 @@
+//App.vue
 <template>
   <div id="app">
     <NavigationBar :isSidebarOpen="isSidebarOpen" class="sidebar" :class="{ open: isSidebarOpen }" /> <!-- 네비게이션 바 추가 -->
     <button class="toggle-button" @click.stop="toggleSidebar">{{ isSidebarOpen ? '◁' : '▷' }}</button> <!-- 토글 버튼 추가 -->
     <div class="main-content" :style="{ marginLeft: isSidebarOpen ? '250px' : '0' }" @click="handleMainContentClick"> <!-- 메인 콘텐츠 클릭 시 사이드바 닫기 -->
-      <img alt="Vue logo" src="./assets/logo.png" />
       <router-view /> <!-- 현재 라우트에 따라 컴포넌트를 표시 -->
-      <button @click="fetchTest">Fetch Test</button> <!-- Fetch 버튼 -->
       <p>{{ apiMessage }}</p> <!-- API 응답 메시지 표시 -->
     </div>
   </div>
@@ -57,14 +56,18 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   display: flex;
-  height: 100vh; /* 화면 전체 높이를 차지하도록 설정 */
+  width: 100vw;
+  height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 
 .main-content {
   padding: 20px;
-  flex: 1; /* 컨텐츠 부분이 남은 공간을 차지하도록 */
-  transition: margin-left 0.3s ease; /* 사이드바가 접히거나 열릴 때 부드럽게 이동 */
+  flex: 1;
+  transition: margin-left 0.3s ease;
+  height: calc(100vh - 40px); /* 화면을 꽉 채우도록 설정, 패딩 보정 */
+  overflow: auto;
 }
 
 .toggle-button {
@@ -72,7 +75,7 @@ export default {
   bottom: 20px;
   left: 20px;
   z-index: 2000;
-  background-color: #002c5f;
+  background-color: #00aad2;
   color: #fff;
   border: none;
   padding: 10px;
@@ -86,7 +89,7 @@ export default {
   left: 0;
   width: 250px;
   height: 100vh;
-  background-color: #002c5f;
+  background-color: #00aad2;
   color: #fff;
   z-index: 1000;
   transition: transform 0.3s ease;
