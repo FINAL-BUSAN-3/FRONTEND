@@ -2,7 +2,7 @@
   <div id="app">
     <NavigationBar :isSidebarOpen="isSidebarOpen" class="sidebar" :class="{ open: isSidebarOpen }" /> <!-- 네비게이션 바 추가 -->
     <button class="toggle-button" @click.stop="toggleSidebar">{{ isSidebarOpen ? '◁' : '▷' }}</button> <!-- 토글 버튼 추가 -->
-    <div class="main-content" @click="handleMainContentClick"> <!-- 메인 콘텐츠 클릭 시 사이드바 닫기 -->
+    <div class="main-content" :style="{ marginLeft: isSidebarOpen ? '250px' : '0' }" @click="handleMainContentClick"> <!-- 메인 콘텐츠 클릭 시 사이드바 닫기 -->
       <img alt="Vue logo" src="./assets/logo.png" />
       <router-view /> <!-- 현재 라우트에 따라 컴포넌트를 표시 -->
       <button @click="fetchTest">Fetch Test</button> <!-- Fetch 버튼 -->
