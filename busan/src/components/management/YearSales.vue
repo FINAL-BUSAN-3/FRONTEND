@@ -6,7 +6,8 @@
 export default {
   data() {
     return {
-      weldingData: [75, 25]
+      salesLabels: ["2020", "2021", "2022", "2023"],
+      salesData: [8000, 8500, 9000, 9500]
     };
   }
 };

@@ -9,8 +9,9 @@ const api = axios.create({
 });
 
 // 경영지표 관련 API 호출 함수
-export const fetchStockData = () => api.get('/management/stock');
+export const fetchStockChartData = () => api.get('/management/stock-chart');
 export const fetchMonthSalesData = () => api.get('/management/month-sales');
+export const fetchYearSalesData = () => api.get('/management/year-sales');
 export const fetchPressDailyData = () => api.get('/management/press/day');
 export const fetchPressWeeklyData = () => api.get('/management/press/week');
 export const fetchPressMonthlyData = () => api.get('/management/press/month');

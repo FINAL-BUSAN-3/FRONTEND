@@ -1,97 +1,236 @@
 <template>
-  <div class="dashboard">
-    <MonthSales class="full-width" />
-    <div class="charts-container full-width">
-      <PressPie />
-      <WeldingPie />
-      <StockChart />
+  <div class="management-view">
+    <div class="header">
+      <h2>월 총 생산량</h2>
+      <span class="production-rate">887 대/일</span>
     </div>
-    <div class="line-charts-container full-width">
-      <YearlySales />
+    <div class="chart-row">
+      <div class="chart-item">
+        <h3 class="chart-title">프레스 데이터</h3>
+        <canvas id="pressChart"></canvas>
+      </div>
+      <div class="chart-item">
+        <h3 class="chart-title">용접 데이터</h3>
+        <canvas id="weldingChart"></canvas>
+      </div>
+      <div class="chart-item">
+        <h3 class="chart-title">주가 데이터</h3>
+        <canvas id="stockChart"></canvas>
+      </div>
+    </div>
+    <div class="button-group">
+      <button @click="setPeriod('day')">일간</button>
+      <button @click="setPeriod('week')">주간</button>
+      <button @click="setPeriod('month')">월간</button>
+    </div>
+    <div class="line-chart-container">
+      <canvas id="monthlyProductionChart"></canvas>
     </div>
   </div>
 </template>
 
 <script>
-import MonthSales from '../components/MonthSales.vue';
-import WeldingPie from '../components/WeldingPie.vue';
-import PressPie from '../components/PressPie.vue';
-import StockChart from '../components/StockChart.vue';
-import YearlySales from '../components/YearlySales.vue';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
+import pressDay from '@/components/management/PressDay.vue';
+import pressWeek from '@/components/management/PressWeek.vue';
+import pressMonth from '@/components/management/PressMonth.vue';
+import weldingDay from '@/components/management/WeldingDay.vue';
+import weldingWeek from '@/components/management/WeldingWeek.vue';
+import weldingMonth from '@/components/management/WeldingMonth.vue';
+import stockData from '@/components/management/StockChart.vue';
+import yearlySales from '@/components/management/YearlySales.vue';
 
 export default {
   name: "ManagementView",
-  components: {
-    MonthSales,
-    WeldingPie,
-    PressPie,
-    StockChart,
-    YearlySales
+  data() {
+    return {
+      pressChart: null,
+      weldingChart: null,
+      stockChart: null,
+      monthlyProductionChart: null,
+      period: 'day',
+      pressDataMap: {
+        day: pressDay.data().pressData,
+        week: pressWeek.data().pressData,
+        month: pressMonth.data().pressData
+      },
+      weldingDataMap: {
+        day: weldingDay.data().weldingData,
+        week: weldingWeek.data().weldingData,
+        month: weldingMonth.data().weldingData
+      }
+    };
+  },
+  computed: {
+    pressData() {
+      return this.pressDataMap[this.period];
+    },
+    weldingData() {
+      return this.weldingDataMap[this.period];
+    }
+  },
+  methods: {
+    renderCharts() {
+      this.createPressChart();
+      this.createWeldingChart();
+      this.createStockChart();
+      this.createMonthlyProductionChart();
+    },
+    createPressChart() {
+      const ctx = document.getElementById("pressChart").getContext("2d");
+      if (this.pressChart) this.pressChart.destroy();
+      this.pressChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: ["양품", "불량품"],
+          datasets: [{
+            data: this.pressData,
+            backgroundColor: ["#4CAF50", "#F44336"]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' }
+          }
+        }
+      });
+    },
+    createWeldingChart() {
+      const ctx = document.getElementById("weldingChart").getContext("2d");
+      if (this.weldingChart) this.weldingChart.destroy();
+      this.weldingChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: ["양품", "불량품"],
+          datasets: [{
+            data: this.weldingData,
+            backgroundColor: ["#4CAF50", "#F44336"]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' }
+          }
+        }
+      });
+    },
+    createStockChart() {
+      const ctx = document.getElementById("stockChart").getContext("2d");
+      if (this.stockChart) this.stockChart.destroy();
+      this.stockChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: stockData.data().stockLabels,
+          datasets: [{
+            label: '주가',
+            data: stockData.data().stockData,
+            borderColor: '#3e95cd',
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: '시간' }},
+            y: { title: { display: true, text: '가격 (₩)' }}
+          }
+        }
+      });
+    },
+    createMonthlyProductionChart() {
+      const ctx = document.getElementById("monthlyProductionChart").getContext("2d");
+      if (this.monthlyProductionChart) this.monthlyProductionChart.destroy();
+      this.monthlyProductionChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: yearlySales.data().salesLabels,
+          datasets: [{
+            label: '연도별 판매량',
+            data: yearlySales.data().salesData,
+            borderColor: '#ff9800',
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { title: { display: true, text: '연도' }},
+            y: { title: { display: true, text: '판매량' }}
+          }
+        }
+      });
+    },
+    setPeriod(period) {
+      this.period = period;
+      this.createPressChart();
+      this.createWeldingChart();
+    }
+  },
+  mounted() {
+    this.renderCharts();
   }
 };
 </script>
 
 <style scoped>
-.dashboard {
-  background-color: #eaf3f9;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.management-view {
+  padding: 100px;
 }
 
-.full-width {
-  width: 90%;
-  max-width: 1400px;
-}
-
-.charts-container {
+.header {
   display: flex;
   justify-content: space-between;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 15px;
-  margin-bottom: 30px;
-  min-height: 400px; /* 아래로 더 확장 */
+  align-items: center;
+  background-color: #003366;
+  color: white;
+  padding: 20px 20px;
+  font-size: 2em;
 }
 
-.charts-container > * {
-  flex: 1;
-  margin: 0 10px;
-  max-width: 300px;
-  height: 300px;
-}
-
-.line-charts-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 15px;
-  margin-top: 30px;
-  min-height: 300px; /* 아래로 더 확장 */
-}
-
-/* 프레스, 용접 제목 폰트 크기 조정 */
-h3 {
+.production-rate {
   font-size: 1.5em;
-  text-align: center;
 }
 
-/* 일간/주간/월간 버튼 크기 조정 */
 .button-group {
   display: flex;
-  justify-content: center;
-  margin-top: 10px;
+  justify-content: center; /* 중앙 정렬 */
+  margin-top: 50px;
+  margin-bottom: 40px; /* 버튼과 아래 요소 사이의 간격 */
+  margin-left:-40%; /* 왼쪽으로 이동 (조정 가능) */
 }
 
 .button-group button {
-  padding: 10px 20px; /* 크기 증가 */
-  font-size: 1.1em; /* 폰트 크기 증가 */
-  margin: 0 5px;
+  padding: 5px 10px;
+  margin: 0 3px;
+  font-size: 1em;
   background-color: #eaeaea;
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.chart-row {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  margin-top: 50px; /* 배너와 파이 차트 사이의 간격 */
+  margin-bottom: 40px; /* 파이 차트와 버튼 사이의 간격 */
+}
+
+.chart-item {
+  width: 300px;
+  height: 300px;
+  padding: 15px;
+  text-align: center;
+}
+
+.line-chart-container {
+  width: 90%;
+  margin: 30px auto;
 }
 </style>

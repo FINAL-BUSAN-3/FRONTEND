@@ -3,10 +3,11 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:8000/management';
 
 // 재고 관련 API 호출 함수
-export const fetchStockData = () => axios.get(`${API_BASE_URL}/stock`);
+export const fetchStockChartData = () => axios.get(`${API_BASE_URL}/stock-chart`);
 
 // 월별 매출 데이터 호출
 export const fetchMonthSalesData = () => axios.get(`${API_BASE_URL}/month-sales`);
+export const fetchYearSalesData = () => axios.get(`${API_BASE_URL}/year-sales`);
 
 // 프레스 데이터 호출
 export const fetchPressDailyData = () => axios.get(`${API_BASE_URL}/press/day`);

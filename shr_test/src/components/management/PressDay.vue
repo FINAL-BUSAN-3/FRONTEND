@@ -6,7 +6,7 @@
 export default {
   data() {
     return {
-      weldingData: [70, 30]
+      pressData: [85, 15]
     };
   }
 };
