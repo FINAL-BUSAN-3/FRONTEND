@@ -32,9 +32,11 @@ pipeline {
 					
 
 					sh """
-                                	ssh -i ${pemPath} ${localUser}@${localHost} "sh /home/ubuntu/FRONTEND/vue_killer.sh"
+                                	ssh -i ${pemPath} ${localUser}@${localHost} "sh /home/ubuntu/FRONTEND/web_killer.sh"
                                 	"""
+
                                 	sh 'echo "[WEB] SERVER DOWN"'
+
 					slackSend(channel: '#deployment-alert', color: '#00FF7F' , message: "[WEB] SERVER DOWN : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 				}
 			}
