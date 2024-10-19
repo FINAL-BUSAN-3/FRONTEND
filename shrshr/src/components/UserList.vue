@@ -7,6 +7,7 @@
         <button @click="searchUser">검색</button>
       </div>
       <button class="add-user-button" @click="goToAddUser">사용자 추가</button>
+
     </div>
     <table>
       <thead>
@@ -32,13 +33,16 @@
 </template>
 
 <script>
-import UserList from '../components/user_management/UserList.vue';
-
 export default {
   data() {
     return {
       searchQuery: '',
-      users: UserList.users // 이제 {} 없이 불러올 수 있습니다.
+      users: [
+        { id: 1, name: '한수현', employeeNo: '1', position: '경영진', lastLogin: '2024-10-12' },
+        { id: 2, name: '서희림', employeeNo: '2', position: '엔지니어', lastLogin: '2024-10-13' },
+        { id: 3, name: '이규섭', employeeNo: '3', position: '엔지니어', lastLogin: '2024-10-14' },
+        { id: 4, name: '김세진', employeeNo: '4', position: '모델관리자', lastLogin: '2024-10-15' }
+      ]
     };
   },
   computed: {
@@ -49,16 +53,15 @@ export default {
     }
   },
   methods: {
-    // searchUser() {
-      // alert(`검색한 사용자: ${this.searchQuery}`);
-    //},
+    searchUser() {
+      alert(`검색한 사용자: ${this.searchQuery}`);
+    },
     goToAddUser() {
-      this.$router.push({ path: '/user-management/user-add' });
-    }
+    this.$router.push({ path: '/user-management/user-add' });
   }
+}
 };
 </script>
-
 
 <style scoped>
 .user-list {
