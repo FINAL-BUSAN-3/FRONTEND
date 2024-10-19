@@ -50,7 +50,7 @@ pipeline {
                                         def pemPath = '/var/jenkins_home/busan.pem'
 
 					sh """
-                                        ssh -i ${pemPath} ${localUser}@${localHost} "cd /home/ubuntu/FRONTEND/busan && nohup npm run serve -- --port 3000 > /dev/null 2>& 1&"
+                                        ssh -i ${pemPath} ${localUser}@${localHost} "cd /home/ubuntu/FRONTEND && nohup server_starter.sh 3000 &"
                                         """
                                         sh 'echo "[WEB] SERVER ON"'
 					slackSend(channel: '#deployment-alert', color: '#00FF7F' , message: "[WEB] SERVER ON : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
