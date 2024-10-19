@@ -4,7 +4,7 @@ pipeline {
 	stages {
 		stage('[WEB] Start') {
 			steps {
-				sh '"echo [WEB Develop] Start"'
+				sh 'echo "[WEB Develop] Start"'
 				slackSend(channel: '#deployment-alert', color: '#00FF7F' , message: "[Schedule Sync] Start : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 			}
 		}
