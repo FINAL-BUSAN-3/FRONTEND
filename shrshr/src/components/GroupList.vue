@@ -71,7 +71,7 @@ export default {
     },
     goToHome() {
       // '처음으로' 버튼 클릭 시 경로로 이동
-      window.location.href = 'http://localhost:8081/user-management/user-list';
+      window.location.href = 'http://localhost:8080/user-management/user-list';
     }
   }
 };
