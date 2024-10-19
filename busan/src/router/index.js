@@ -3,6 +3,9 @@ import HelloWorld from '../components/HelloWorld.vue';  // '../'로 경로를 �
 import TestPage from '../components/TestPage.vue';      // '../'로 경로를 수정
 import ManagementPage from '../views/ManagementPage.vue';         // 경영지표 관련 페이지
 import EngineeringPage from '../views/EngineeringPage.vue';       // 엔지니어링 지표 관련 페이지
+import EngineeringPressPage from '../views/EngineeringPressPage.vue';       // 엔지니어링 지표 관련 페이지
+import EngineeringWeldingPage from '../views/EngineeringWeldingPage.vue';       // 엔지니어링 지표 관련 페이지
+
 import ModelManagementPage from '../views/ModelManagementPage.vue'; // 모델 관리 관련 페이지
 import ModelDeploymentPage from '../views/ModelDeploymentPage.vue'; // 모델 배포 관련 페이지
 import SocialAnalysisPage from '../views/SocialAnalysisPage.vue';   // 소셜 분석 관련 페이지
@@ -25,14 +28,19 @@ const routes = [
     component: ManagementPage,
   },
   {
+    path: '/engineering',
+    name: 'Engineering',
+    component: EngineeringPage,
+  },
+  {
     path: '/engineering/press',
     name: 'EngineeringPress',
-    component: EngineeringPage,
+    component: EngineeringPressPage,
   },
   {
     path: '/engineering/welding',
     name: 'EngineeringWelding',
-    component: EngineeringPage,
+    component: EngineeringWeldingPage,
   },
   {
     path: '/model-management',
