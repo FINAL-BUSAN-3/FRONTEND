@@ -18,9 +18,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in filteredUsers" :key="user.id">
+        <tr v-for="user in filteredUsers" :key="user.employeeNo">
           <td>
-            <router-link :to="`/user-management/user-detail/${user.id}`">{{ user.name }}</router-link>
+            <router-link :to="`/user-management/user-detail/${user.employeeNo}`">{{ user.name }}</router-link>
           </td>
           <td>{{ user.employeeNo }}</td>
           <td>{{ user.position }}</td>
@@ -38,20 +38,17 @@ export default {
   data() {
     return {
       searchQuery: '',
-      users: UserList.users // 이제 {} 없이 불러올 수 있습니다.
+      users: UserList.data().users // UserList에서 users 데이터를 가져옴
     };
   },
   computed: {
     filteredUsers() {
       return this.users.filter(user =>
-        user.name.includes(this.searchQuery)
+        user.name && user.name.includes(this.searchQuery) // 검색어와 일치하는 사용자만 필터링
       );
     }
   },
   methods: {
-    // searchUser() {
-      // alert(`검색한 사용자: ${this.searchQuery}`);
-    //},
     goToAddUser() {
       this.$router.push({ path: '/user-management/user-add' });
     }
@@ -59,8 +56,8 @@ export default {
 };
 </script>
 
-
 <style scoped>
+/* 기존 스타일 유지 */
 .user-list {
   font-size: 1.4rem;
 }

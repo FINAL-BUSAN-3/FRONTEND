@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <h1>ModelApply.vue</h1>
+  </div>
   <div class="model-apply">
     <h2>모델 배포 신청</h2>
     <p>모델을 배포하시겠습니까?</p>
