@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <h1>GroupAdd.vue</h1>
+  </div>
   <div class="group-add">
     <h2>권한 추가</h2>
 

@@ -1,5 +1,5 @@
 <template>
   <div>
-    <h1>UserSearch.vue</h1>
+    <h1>Group.vue</h1>
   </div>
 </template>

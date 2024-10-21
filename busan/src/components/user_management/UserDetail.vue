@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <h1>UserDetail.vue</h1>
+  </div>
   <div class="user-detail">
     <!-- 상단 네비게이션 바 -->
     <h2>개인정보</h2>
