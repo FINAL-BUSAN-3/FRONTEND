@@ -1,5 +1,7 @@
 // userManagement.js
 import UserManagementPage from '../views/UserManagementPage.vue';
+import UserPage from '../views/UserPage.vue';
+import GroupPage from '../views/GroupPage.vue';
 
 export default [
   {
@@ -9,8 +11,13 @@ export default [
   },
   {
     path: '/user-management/user',
-    name: 'UserProfile',
-    component: () => import('../components/user_management/UserProfile.vue'),
+    name: 'UserPage',
+    component: UserPage,
+  },
+  {
+    path: '/user-management/group',
+    name: 'GroupPage',
+    component: GroupPage,
   },
   {
     path: '/user-management/user-list',
@@ -38,11 +45,6 @@ export default [
     component: () => import('../components/user_management/UserSave.vue'),
   },
   {
-    path: '/user-management/group',
-    name: 'UserGroup',
-    component: () => import('../components/user_management/UserGroup.vue'),
-  },
-  {
     path: '/user-management/group-search',
     name: 'GroupSearch',
     component: () => import('../components/user_management/GroupSearch.vue'),
@@ -56,6 +58,16 @@ export default [
     path: '/user-management/group-list',
     name: 'GroupList',
     component: () => import('../components/user_management/GroupList.vue'),
+  },
+  {
+    path: '/user-management/user-delete',
+    name: 'UserDelete',
+    component: () => import('../components/user_management/UserDelete.vue'),
+  },
+  {
+    path: '/user-management/group-delete',
+    name: 'GroupDelete',
+    component: () => import('../components/user_management/GroupDelete.vue'),
   },
 ];
 

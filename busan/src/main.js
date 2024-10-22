@@ -5,3 +5,4 @@ import router from './router'; // 라우터를 사용하는 경우 라우터도 
 createApp(App)
   .use(router) // 라우터를 사용할 경우 .use(router)를 추가
   .mount('#app');
+

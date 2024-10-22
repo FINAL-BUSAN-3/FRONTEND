@@ -1,9 +1,8 @@
-//App.vue
 <template>
   <div id="app">
     <NavigationBar :isSidebarOpen="isSidebarOpen" class="sidebar" :class="{ open: isSidebarOpen }" /> <!-- 네비게이션 바 추가 -->
     <button class="toggle-button" @click.stop="toggleSidebar">{{ isSidebarOpen ? '◁' : '▷' }}</button> <!-- 토글 버튼 추가 -->
-    <div class="main-content" :style="{ marginLeft: isSidebarOpen ? '250px' : '0' }" @click="handleMainContentClick"> <!-- 메인 콘텐츠 클릭 시 사이드바 닫기 -->
+    <div class="main-content" :style="{ marginLeft: isSidebarOpen ? '250px' : '0' }"> <!-- 메인 콘텐츠에서 사이드바를 닫지 않도록 수정 -->
       <router-view /> <!-- 현재 라우트에 따라 컴포넌트를 표시 -->
       <p>{{ apiMessage }}</p> <!-- API 응답 메시지 표시 -->
     </div>
@@ -38,13 +37,7 @@ export default {
     toggleSidebar() {
       this.isSidebarOpen = !this.isSidebarOpen; // 사이드바 열기/닫기 상태 변경
       localStorage.setItem('isSidebarOpen', this.isSidebarOpen); // 사이드바 상태를 로컬 스토리지에 저장
-    },
-    handleMainContentClick() {
-      if (this.isSidebarOpen) {
-        this.isSidebarOpen = false; // 메인 콘텐츠 클릭 시 사이드바 닫기
-        localStorage.setItem('isSidebarOpen', this.isSidebarOpen); // 사이드바 상태를 로컬 스토리지에 저장
-      }
-    },
+    }
   },
 };
 </script>

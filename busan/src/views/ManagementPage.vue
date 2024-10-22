@@ -39,8 +39,8 @@ import pressMonth from '@/components/management/PressMonth.vue';
 import weldingDay from '@/components/management/WeldingDay.vue';
 import weldingWeek from '@/components/management/WeldingWeek.vue';
 import weldingMonth from '@/components/management/WeldingMonth.vue';
-import stockChartData from '@/components/management/StockChart.vue';
 import yearSales from '@/components/management/YearSales.vue';
+import axios from 'axios';
 
 export default {
   name: "ManagementView",
@@ -60,7 +60,9 @@ export default {
         day: weldingDay.data().weldingData,
         week: weldingWeek.data().weldingData,
         month: weldingMonth.data().weldingData
-      }
+      },
+      stockData: [],  // 주가 데이터를 저장할 배열
+      stockLabels: [] // 주가 데이터의 라벨 (시간)
     };
   },
   computed: {
@@ -72,6 +74,17 @@ export default {
     }
   },
   methods: {
+    async fetchStockData() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/stock-history/005380'); // 현대차 주식 코드
+        const data = response.data;
+        this.stockLabels = data.map(item => item.time);
+        this.stockData = data.map(item => item.price);
+        this.createStockChart(); // 데이터를 가져온 후 차트를 생성
+      } catch (error) {
+        console.error("주가 데이터를 불러오는 데 실패했습니다:", error);
+      }
+    },
     renderCharts() {
       this.createPressChart();
       this.createWeldingChart();
@@ -124,10 +137,10 @@ export default {
       this.stockChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: stockChartData.data().stockLabels, // stockLabels 확인
+          labels: this.stockLabels, // 주가 데이터의 시간 라벨
           datasets: [{
-            label: '주가',
-            data: stockChartData.data().stockData, // stockData로 수정
+            label: '현대차 주가',
+            data: this.stockData, // 주가 데이터
             borderColor: '#3e95cd',
             fill: false
           }]
@@ -173,13 +186,15 @@ export default {
   },
   mounted() {
     this.renderCharts();
+    this.fetchStockData(); // 주식 데이터도 같이 가져오기
+    setInterval(this.fetchStockData, 60000); // 10분마다 주가 데이터 갱신
   }
 };
 </script>
 
 <style scoped>
 .management-view {
-  padding: 100px;
+  padding: 30px;
 }
 
 .header {
@@ -188,7 +203,7 @@ export default {
   align-items: center;
   background-color: #003366;
   color: white;
-  padding: 20px 20px;
+  padding: 15px 80px;
   font-size: 2em;
 }
 
@@ -198,10 +213,10 @@ export default {
 
 .button-group {
   display: flex;
-  justify-content: center; /* 중앙 정렬 */
+  justify-content: center;
   margin-top: 50px;
-  margin-bottom: 40px; /* 버튼과 아래 요소 사이의 간격 */
-  margin-left:-33%; /* 왼쪽으로 이동 (조정 가능) */
+  margin-bottom: 40px;
+  margin-left: -33%;
 }
 
 .button-group button {
@@ -218,8 +233,8 @@ export default {
   display: flex;
   justify-content: space-evenly;
   align-items: flex-start;
-  margin-top: 50px; /* 배너와 파이 차트 사이의 간격 */
-  margin-bottom: 40px; /* 파이 차트와 버튼 사이의 간격 */
+  margin-top: 50px;
+  margin-bottom: 40px;
 }
 
 .chart-item {
@@ -234,29 +249,28 @@ export default {
   margin: 30px auto;
 }
 
-/* MonthSales.vue 스타일 코드 */
 .banner {
-  background-color: #002c5f; /* 배경색 */
+  background-color: #002c5f;
   color: white;
-  padding: 20px 40px; /* 좌우 패딩 조정 */
+  padding: 20px 40px;
   text-align: center;
   border-radius: 15px;
-  font-size: 2em; /* 텍스트 크기 조정 */
+  font-size: 2em;
   margin: 10px;
-  width: 80%; /* 배너 너비를 더 길게 설정 */
-  max-width: 1200px; /* 최대 너비 설정 */
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
-  display: flex; /* Flexbox 사용 */
-  justify-content: space-between; /* 좌우 끝 정렬 */
-  align-items: center; /* 수직 중앙 정렬 */
+  width: 80%;
+  max-width: 1200px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .banner-text {
-  font-size: 1.8em; /* "월 총 생산량" 텍스트 크기 */
+  font-size: 1.8em;
 }
 
 .banner-number {
-  font-size: 1.8em; /* 숫자 텍스트 크기 */
-  font-weight: bold; /* 강조 */
+  font-size: 1.8em;
+  font-weight: bold;
 }
 </style>
