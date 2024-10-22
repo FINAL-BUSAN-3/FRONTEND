@@ -140,9 +140,20 @@ export default {
 
   async created() {
     await this.fetchUserData(); // 컴포넌트가 생성될 때 기본 사용자 데이터를 불러옴
+  },
+  watch: {
+    '$route'(to) {
+      if (to.path === '/user-management') {
+        this.refreshUserList(); // 사용자 목록 페이지로 돌아올 때 데이터 새로고침
+      }
+      if (to.path === '/user-management') {
+        this.fetchGroupData(); // 권한 목록 페이지로 돌아올 때 데이터 새로고침
+      }
+    }
   }
 };
 </script>
+
 
 <style scoped>
 .user-management-page {
