@@ -16,11 +16,13 @@
         <!-- 모델 선택 -->
         <div class="model-section">
           <label for="model-select">모델</label>
+          <!-- ModelSelect 컴포넌트를 사용 -->
+          <ModelSelect @update:modelFileNames="updateModelFileNames" />
           <select id="model-select" v-model="selectedModel">
             <option value="" disabled>모델을 선택해 주세요</option>
             <option v-for="model in models" :key="model" :value="model">{{ model }}</option>
           </select>
-        </div>
+        </div>  
       </div>
 
       <!-- 파일 업로드 기능 -->
@@ -37,69 +39,7 @@
     <div v-else>
       <h2>모델 비교</h2>
       <div class="model-comparison">
-        <div class="model-detail left">
-          <div class="model-info">
-            <p>* 모델명: {{ modelDetails[0].name }}</p>
-            <p>* 모델 버전: {{ modelDetails[0].version }}</p>
-            <p>* 파일생성일자: {{ modelDetails[0].fileDate }}</p>
-            <p>* 파일크기: {{ modelDetails[0].fileSize }}</p>
-            <p>* 파일프레임워크: {{ modelDetails[0].framework }}</p>
-            <p>* 학습 정보: {{ modelDetails[0].trainingInfo }}</p>
-            <p>* 배포일자: {{ modelDetails[0].deploymentDate }}</p>
-          </div>
-          <div class="model-stats">
-            <table>
-              <thead>
-                <tr>
-                  <th>항목</th>
-                  <th>값</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Loss</td>
-                  <td>{{ modelDetails[0].avgLoss }}</td>
-                </tr>
-                <tr>
-                  <td>Accuracy</td>
-                  <td>{{ modelDetails[0].avgAccuracy }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="model-detail right">
-          <div class="model-info">
-            <p>* 모델명: {{ modelDetails[1].name }}</p>
-            <p>* 모델 버전: {{ modelDetails[1].version }}</p>
-            <p>* 파일생성일자: {{ modelDetails[1].fileDate }}</p>
-            <p>* 파일크기: {{ modelDetails[1].fileSize }}</p>
-            <p>* 파일프레임워크: {{ modelDetails[1].framework }}</p>
-            <p>* 학습 정보: {{ modelDetails[1].trainingInfo }}</p>
-            <p>* 배포일자: {{ modelDetails[1].deploymentDate }}</p>
-          </div>
-          <div class="model-stats">
-            <table>
-              <thead>
-                <tr>
-                  <th>항목</th>
-                  <th>값</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Loss</td>
-                  <td>{{ modelDetails[1].avgLoss }}</td>
-                </tr>
-                <tr>
-                  <td>Accuracy</td>
-                  <td>{{ modelDetails[1].avgAccuracy }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- 모델 비교 정보 -->
       </div>
       <button @click="deployModel" class="deploy-button">배포</button>
     </div>
@@ -108,31 +48,29 @@
 
 <script>
 import ModelInsertUpload from '@/components/model_deployment/ModelInsert.vue';
-import ProcessSelectComponent from '@/components/model_deployment/ProcessSelect.vue';
-import ModelSelectComponent from '@/components/model_deployment/ModelSelect.vue';
-import ModelDetailData from '@/components/model_deployment/ModelDetail.vue';
+import ModelSelect from '@/components/model_deployment/ModelSelect.vue';
 
 export default {
   name: 'ModelDeploymentPage',
   components: {
     ModelInsertUpload,
+    ModelSelect,
   },
   data() {
     return {
       uploadSuccess: false,
-      modelDetails: ModelDetailData.data().modelDetails,
+      modelDetails: [],
       selectedModel: '',
       file: null,
-      processes: ProcessSelectComponent.data().items,
-      models: ModelSelectComponent.data().models,
+      processes: ['공정 1', '공정 2', '공정 3'], // 공정 데이터
+      models: [], // 모델 파일 이름 배열
+      selectedProcess: ''
     };
   },
-  computed: {
-    isFileUploaded() {
-      return !!this.file;
-    },
-  },
   methods: {
+    updateModelFileNames(model_file_names) {
+      this.models = model_file_names; // ModelSelect에서 가져온 데이터 업데이트
+    },
     uploadModel() {
       if (!this.selectedModel) {
         alert('업로드 실패: 모델을 선택해 주세요.');

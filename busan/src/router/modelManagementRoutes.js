@@ -7,11 +7,11 @@ export default [
     name: 'ModelManagement',
     component: ModelManagementPage,
   },
-  {
-    path: '/model-management/model-select',
-    name: 'ModelSelectForManagement',
-    component: () => import('../components/model_management/ModelSelect.vue'),
-  },
+//  {
+//    path: '/model-management/model-select',
+//    name: 'ModelSelectForManagement',
+//    component: () => import('../components/model_management/ModelSelect.vue'),
+//  },
   {
     path: '/model-management/model-select/detail',
     name: 'ModelDetailForManagement',
