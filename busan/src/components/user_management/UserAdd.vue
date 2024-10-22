@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <h1>UserAdd.vue</h1>
+  </div>
   <div class="user-add-container">
     <h1>사용자 추가</h1>
     <input type="text" v-model="name" placeholder="이름" class="input-field">

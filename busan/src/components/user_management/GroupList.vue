@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <h1>GroupList.vue</h1>
+  </div>
   <div class="group-list">
     <h2>권한 관리</h2>
 

@@ -1,3 +1,10 @@
+<template>
+  <div>
+    <h1>ModelDetail.vue</h1>
+  </div>
+</template>
+
+
 <script>
 export default {
   name: 'ModelDetail',
