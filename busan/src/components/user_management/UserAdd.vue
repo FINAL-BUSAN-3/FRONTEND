@@ -3,7 +3,6 @@
     <h1>사용자 추가</h1>
     <input type="text" v-model="name" placeholder="이름" class="input-field">
     <input type="number" v-model.number="employeeNo" placeholder="사번" class="input-field">
-    <input type="password" v-model="password" placeholder="비밀번호" class="input-field">
 
     <!-- 권한 선택 드롭다운 -->
     <select v-model="role" :class="{'placeholder-selected': role === ''}" class="input-field">
@@ -25,7 +24,6 @@ export default {
     return {
       name: "",
       employeeNo: "",
-      password: "",  // 비밀번호 추가,
       role: ""  // 권한 초기값을 빈 문자열로 설정
     };
   },
@@ -39,14 +37,13 @@ export default {
       const user = {
         name: this.name,
         employeeNo: this.employeeNo,
-        password: this.password,  // 비밀번호 추가
         role: this.role,
       };
 
       try {
         const response = await axios.post('http://127.0.0.1:8000/user-management/user-add', user);
         alert(response.data.message || "사용자가 성공적으로 추가되었습니다!");
-        this.$router.push({ path: '/user-management/user-list' });
+        this.$router.push({ path: '/user-management' });
       } catch (error) {
         console.error("Failed to add user:", error);
         alert("사용자 추가에 실패했습니다.");

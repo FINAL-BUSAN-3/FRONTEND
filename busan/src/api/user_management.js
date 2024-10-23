@@ -42,4 +42,4 @@ export const fetchGroupDelete = () => api.get('${USER_API_BASE_URL}/group-delete
 //export const fetchUserDelete = (employeeNo) => api.delete(`${USER_API_BASE_URL}/user-delete/${employeeNo}`);
 
 // 권한 삭제 (GET -> DELETE로 수정)
-export const fetchGroupDelete = (groupName) => api.delete(`${USER_API_BASE_URL}/group-delete/${groupName}`);
+//export const fetchGroupDelete = (groupName) => api.delete(`${USER_API_BASE_URL}/group-delete/${groupName}`);

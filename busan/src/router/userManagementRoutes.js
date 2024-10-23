@@ -2,6 +2,7 @@
 import UserManagementPage from '../views/UserManagementPage.vue';
 import UserPage from '../views/UserPage.vue';
 import GroupPage from '../views/GroupPage.vue';
+import UserDetail from '../components/user_management/UserDetail.vue';
 
 export default [
   {
@@ -34,10 +35,16 @@ export default [
     name: 'UserAdd',
     component: () => import('../components/user_management/UserAdd.vue'),
   },
+//  {
+//    path: '/user-management/user-detail',
+//    name: 'UserDetail',
+//    component: () => import('../components/user_management/UserDetail.vue'),
+//  },
   {
-    path: '/user-management/user-detail',
+    path: '/user-management/user-detail/:userId',
     name: 'UserDetail',
-    component: () => import('../components/user_management/UserDetail.vue'),
+    component: UserDetail,
+    props: true  // URL에서 받은 `userId`를 props로 넘겨줍니다.
   },
   {
     path: '/user-management/user-save',

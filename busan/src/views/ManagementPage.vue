@@ -4,27 +4,40 @@
       <h2>월 총 생산량</h2>
       <span class="production-rate">887 대/일</span>
     </div>
+
+    <!-- 프레스와 용접 데이터를 하나의 카드로 묶고 버튼을 하단 중앙에 배치 -->
     <div class="chart-row">
-      <div class="chart-item">
-        <h3 class="chart-title">프레스 데이터</h3>
-        <canvas id="pressChart"></canvas>
+      <div class="chart-card">
+        <div class="combined-chart">
+          <div class="chart-item">
+            <h3 class="chart-title">프레스</h3>
+            <canvas id="pressChart"></canvas>
+          </div>
+          <div class="chart-item">
+            <h3 class="chart-title">용접</h3>
+            <canvas id="weldingChart"></canvas>
+          </div>
+        </div>
+        <div class="button-group-inside-card">
+          <button @click="setPeriod('day')">일간</button>
+          <button @click="setPeriod('week')">주간</button>
+          <button @click="setPeriod('month')">월간</button>
+        </div>
       </div>
-      <div class="chart-item">
-        <h3 class="chart-title">용접 데이터</h3>
-        <canvas id="weldingChart"></canvas>
-      </div>
-      <div class="chart-item">
-        <h3 class="chart-title">주가 데이터</h3>
-        <canvas id="stockChart"></canvas>
+      <div class="chart-card">
+        <h3 class="chart-title">현대 & 기아자동차 주가</h3>
+        <div class="chart-item">
+          <canvas id="stockChart"></canvas>
+        </div>
       </div>
     </div>
-    <div class="button-group">
-      <button @click="setPeriod('day')">일간</button>
-      <button @click="setPeriod('week')">주간</button>
-      <button @click="setPeriod('month')">월간</button>
-    </div>
+
+    <!-- 월간 생산량 그래프 카드로 유지 -->
     <div class="line-chart-container">
-      <canvas id="monthlyProductionChart"></canvas>
+      <div class="chart-card">
+        <h3 class="chart-title">월간 생산량</h3>
+        <canvas id="monthlyProductionChart"></canvas>
+      </div>
     </div>
   </div>
 </template>
@@ -39,7 +52,6 @@ import pressMonth from '@/components/management/PressMonth.vue';
 import weldingDay from '@/components/management/WeldingDay.vue';
 import weldingWeek from '@/components/management/WeldingWeek.vue';
 import weldingMonth from '@/components/management/WeldingMonth.vue';
-import yearSales from '@/components/management/YearSales.vue';
 import axios from 'axios';
 
 export default {
@@ -61,8 +73,12 @@ export default {
         week: weldingWeek.data().weldingData,
         month: weldingMonth.data().weldingData
       },
-      stockData: [],  // 주가 데이터를 저장할 배열
-      stockLabels: [] // 주가 데이터의 라벨 (시간)
+      hdStockData: [],
+      kiaStockData: [],
+      stockLabels: [],
+      hdSalesData: [],
+      kiaSalesData: [],
+      salesLabels: []
     };
   },
   computed: {
@@ -74,13 +90,33 @@ export default {
     }
   },
   methods: {
+    async fetchSalesData() {
+      try {
+        const hdResponse = await axios.get('http://127.0.0.1:8000/sales/hd');
+        this.hdSalesData = hdResponse.data.map(item => item.count);
+        this.salesLabels = hdResponse.data.map(item => item.year);
+
+        const kiaResponse = await axios.get('http://127.0.0.1:8000/sales/kia');
+        this.kiaSalesData = kiaResponse.data.map(item => item.count);
+
+        this.createMonthlyProductionChart();
+      } catch (error) {
+        console.error("판매 데이터를 불러오는 데 실패했습니다:", error);
+      }
+    },
     async fetchStockData() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/stock-history/005380'); // 현대차 주식 코드
-        const data = response.data;
-        this.stockLabels = data.map(item => item.time);
-        this.stockData = data.map(item => item.price);
-        this.createStockChart(); // 데이터를 가져온 후 차트를 생성
+        const hyundaiResponse = await axios.get('http://127.0.0.1:8000/stock-history/005380');
+        const kiaResponse = await axios.get('http://127.0.0.1:8000/stock-history/000270');
+
+        const hyundaiData = hyundaiResponse.data;
+        const kiaData = kiaResponse.data;
+
+        this.stockLabels = hyundaiData.map(item => item.time);
+        this.hdStockData = hyundaiData.map(item => item.price);
+        this.kiaStockData = kiaData.map(item => item.price);
+
+        this.createStockChart();
       } catch (error) {
         console.error("주가 데이터를 불러오는 데 실패했습니다:", error);
       }
@@ -137,13 +173,21 @@ export default {
       this.stockChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: this.stockLabels, // 주가 데이터의 시간 라벨
-          datasets: [{
-            label: '현대차 주가',
-            data: this.stockData, // 주가 데이터
-            borderColor: '#3e95cd',
-            fill: false
-          }]
+          labels: this.stockLabels,
+          datasets: [
+            {
+              label: '현대차 주가',
+              data: this.hdStockData,
+              borderColor: '#3e95cd',
+              fill: false
+            },
+            {
+              label: '기아차 주가',
+              data: this.kiaStockData,
+              borderColor: '#ff6384',
+              fill: false
+            }
+          ]
         },
         options: {
           responsive: true,
@@ -161,13 +205,21 @@ export default {
       this.monthlyProductionChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: yearSales.data().salesLabels,
-          datasets: [{
-            label: '연도별 판매량',
-            data: yearSales.data().salesData,
-            borderColor: '#ff9800',
-            fill: false
-          }]
+          labels: this.salesLabels,
+          datasets: [
+            {
+              label: '현대자동차',
+              data: this.hdSalesData,
+              borderColor: '#3e95cd',
+              fill: false
+            },
+            {
+              label: '기아자동차',
+              data: this.kiaSalesData,
+              borderColor: '#8e5ea2',
+              fill: false
+            }
+          ]
         },
         options: {
           responsive: true,
@@ -186,8 +238,9 @@ export default {
   },
   mounted() {
     this.renderCharts();
-    this.fetchStockData(); // 주식 데이터도 같이 가져오기
-    setInterval(this.fetchStockData, 60000); // 10분마다 주가 데이터 갱신
+    this.fetchStockData();
+    this.fetchSalesData();
+    setInterval(this.fetchStockData, 720000);
   }
 };
 </script>
@@ -205,28 +258,30 @@ export default {
   color: white;
   padding: 15px 80px;
   font-size: 2em;
+  border-radius: 25px;
 }
 
 .production-rate {
   font-size: 1.5em;
 }
 
-.button-group {
-  display: flex;
-  justify-content: center;
-  margin-top: 50px;
-  margin-bottom: 40px;
-  margin-left: -33%;
+.chart-card {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  margin: 10px;
 }
 
-.button-group button {
-  padding: 5px 10px;
-  margin: 0 3px;
-  font-size: 1em;
-  background-color: #eaeaea;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  cursor: pointer;
+.chart-title {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.combined-chart {
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .chart-row {
@@ -241,7 +296,6 @@ export default {
   width: 300px;
   height: 300px;
   padding: 15px;
-  text-align: center;
 }
 
 .line-chart-container {
@@ -249,28 +303,19 @@ export default {
   margin: 30px auto;
 }
 
-.banner {
-  background-color: #002c5f;
-  color: white;
-  padding: 20px 40px;
-  text-align: center;
-  border-radius: 15px;
-  font-size: 2em;
-  margin: 10px;
-  width: 80%;
-  max-width: 1200px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+.button-group-inside-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
 }
 
-.banner-text {
-  font-size: 1.8em;
-}
-
-.banner-number {
-  font-size: 1.8em;
-  font-weight: bold;
+.button-group-inside-card button {
+  padding: 5px 10px;
+  margin: 0 5px;
+  font-size: 1em;
+  background-color: #eaeaea;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>

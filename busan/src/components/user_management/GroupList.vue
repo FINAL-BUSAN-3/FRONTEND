@@ -32,19 +32,19 @@ export default {
   },
   methods: {
     async fetchGroupList() {
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/user-management/user-groups');
-        console.log("Fetched groups:", response.data.user_groups); // 데이터 로깅
-        // 데이터 필드 이름 맞추기
-        this.groups = response.data.user_groups.map(group => ({
-          id: group[0],              // ID
-          group_name: group[1],      // 권한 이름
-          description: group[2]      // 권한 설명
-        }));
-      } catch (error) {
-        console.error('Failed to fetch groups:', error);
-      }
-    }
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/user-management/group-list');
+    console.log("Fetched groups:", response.data); // 데이터 응답 구조를 확인합니다.
+    // 데이터 필드 이름 맞추기
+    this.groups = response.data.map(group => ({
+      id: group[0],              // ID
+      group_name: group[1],      // 권한 이름
+      description: group[2]      // 권한 설명
+    }));
+  } catch (error) {
+    console.error('Failed to fetch groups:', error);
+  }
+}
   }
 };
 </script>
