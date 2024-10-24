@@ -178,13 +178,13 @@ export default {
             {
               label: '현대차 주가',
               data: this.hdStockData,
-              borderColor: '#3e95cd',
+              borderColor: '#00aad2',
               fill: false
             },
             {
               label: '기아차 주가',
               data: this.kiaStockData,
-              borderColor: '#ff6384',
+              borderColor: '#9b111e',
               fill: false
             }
           ]
@@ -210,13 +210,13 @@ export default {
             {
               label: '현대자동차',
               data: this.hdSalesData,
-              borderColor: '#3e95cd',
+              borderColor: '#00aad2',
               fill: false
             },
             {
               label: '기아자동차',
               data: this.kiaSalesData,
-              borderColor: '#8e5ea2',
+              borderColor: '#9b111e',
               fill: false
             }
           ]

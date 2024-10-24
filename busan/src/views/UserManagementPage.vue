@@ -196,12 +196,18 @@ export default {
           await this.deleteUser(employeeNo);
         }
         await this.fetchUserData();
+        if (userIdsToDelete.length > 0) {
+          alert("선택한 사용자가 성공적으로 삭제되었습니다!"); // 삭제 완료 메시지 추가
+        }
       } else if (this.currentView === 'group') {
         const groupIdsToDelete = this.selectedGroups;
         for (const groupId of groupIdsToDelete) {
           await this.deleteGroup(groupId);
         }
         await this.fetchGroupData();
+        if (groupIdsToDelete.length > 0) {
+          alert("선택한 권한 그룹이 성공적으로 삭제되었습니다!"); // 삭제 완료 메시지 추가
+        }
       } else {
         alert("삭제할 항목을 선택하세요.");
       }
@@ -214,6 +220,7 @@ export default {
         console.log(response.data.message);
       } catch (error) {
         console.error(`Failed to delete user ${employeeNo}:`, error);
+        alert("사용자 삭제에 실패했습니다.");
       }
     },
     async deleteGroup(groupId) {
@@ -222,44 +229,33 @@ export default {
         console.log(response.data.message);
       } catch (error) {
         console.error(`Failed to delete group ${groupId}:`, error);
-      }
-    },
-    async addUser() {
-      try {
-        const response = await axios.post('http://127.0.0.1:8000/user-management/user-add', {
-          name: this.name,
-          employeeNo: this.employeeNo,
-          role: this.role
-        });
-        alert(response.data.message);
-        this.$router.push({ path: '/user-management/user-list' });
-      } catch (error) {
-        if (error.response && error.response.status === 400) {
-          alert("중복된 사번입니다. 다른 사번을 사용하세요.");
-        } else {
-          console.error("사용자 추가 실패:", error);
-          alert("이미 있는 사용자입니다.");
-        }
+        alert("권한 그룹 삭제에 실패했습니다.");
       }
     }
   },
   async created() {
+    const tab = this.$route.query.tab;
+    this.currentView = tab === 'group' ? 'group' : 'user';
+
     await this.fetchUserData(); // 컴포넌트가 생성될 때 기본 사용자 데이터를 불러옴
     await this.fetchGroupData(); // 그룹 데이터를 함께 불러옴
   },
   watch: {
     '$route'(to) {
-      if (to.path === '/user-management') {
-        if (this.currentView === 'user') {
-          this.fetchUserData();
-        } else {
-          this.fetchGroupData();
-        }
+      const tab = to.query.tab;
+      this.currentView = tab === 'group' ? 'group' : 'user';
+
+      if (this.currentView === 'user') {
+        this.fetchUserData();
+      } else {
+        this.fetchGroupData();
       }
     }
   }
 };
 </script>
+
+
 
 <style scoped>
 .user-management-page {

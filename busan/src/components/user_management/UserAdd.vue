@@ -12,7 +12,10 @@
       <option value="모델관리자">모델 관리자</option>
     </select>
 
-    <button @click="addUser" class="add-button">사용자 추가</button>
+    <div class="button-group">
+      <button @click="goBack" class="back-button">뒤로가기</button>
+      <button @click="addUser" class="add-button">추가</button>
+    </div>
   </div>
 </template>
 
@@ -48,7 +51,72 @@ export default {
         console.error("Failed to add user:", error);
         alert("사용자 추가에 실패했습니다.");
       }
+    },
+    goBack() {
+      this.$router.push('/user-management'); // 사용자 목록 화면으로 이동
     }
   }
 };
 </script>
+
+<style scoped>
+.user-add-container {
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  text-align: center;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-field {
+  width: 30%;
+  padding: 0.8rem;
+  margin: 0.2rem ;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  box-sizing: border-box;
+}
+
+.placeholder-selected {
+  color: #555;  /* '권한을 선택하세요' 글씨 색상 조정: 중간 회색 */
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  gap: 5px; /* 버튼 사이 간격 제거 */
+}
+
+.back-button, .add-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover, .add-button:hover {
+  background-color: #388e3c;
+}
+</style>
