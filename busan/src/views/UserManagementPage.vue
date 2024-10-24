@@ -25,7 +25,7 @@
       <table class="user-table">
         <thead>
           <tr>
-            <th><input type="checkbox" @change="toggleSelectAll('user', $event)" /></th> <!-- 전체 선택 체크박스 -->
+            <th><input type="checkbox" @change="toggleSelectAll('user', $event)" /></th>
             <th>이름</th>
             <th>사번</th>
             <th>권한</th>
@@ -55,7 +55,7 @@
       <table class="group-table">
         <thead>
           <tr>
-            <th><input type="checkbox" @change="toggleSelectAll('group', $event)" /></th> <!-- 전체 선택 체크박스 -->
+            <th><input type="checkbox" @change="toggleSelectAll('group', $event)" /></th>
             <th>권한 이름</th>
             <th>권한 설명</th>
           </tr>
@@ -86,10 +86,10 @@ export default {
     return {
       currentView: 'user',
       searchQuery: '',
-      users: [], // UserList 데이터를 저장할 배열
-      groups: [], // GroupList 데이터를 저장할 배열
-      selectedUsers: [], // 선택된 사용자 ID를 배열로 관리
-      selectedGroups: [] // 선택된 그룹 ID를 배열로 관리
+      users: [],
+      groups: [],
+      selectedUsers: [],
+      selectedGroups: []
     };
   },
   computed: {
@@ -118,9 +118,9 @@ export default {
       this.searchQuery = ''; // 검색어 초기화
       this.currentView = view;
       if (view === 'group') {
-        this.fetchGroupData(); // 권한 관리 뷰로 전환할 때 권한 데이터 가져오기
+        this.fetchGroupData();
       } else {
-        this.fetchUserData(); // 사용자 관리 뷰로 전환할 때 사용자 데이터 가져오기
+        this.fetchUserData();
       }
     },
     searchItem() {
@@ -130,7 +130,8 @@ export default {
       if (this.currentView === 'user') {
         this.$router.push({ path: '/user-management/user-add' });
       } else {
-        this.$router.push({ path: '/user-management/group-add' });
+        // 권한 추가 후 "권한 관리" 탭을 유지하기 위해 query 설정
+        this.$router.push({ path: '/user-management/group-add', query: { tab: 'group' } });
       }
     },
     goToUserDetail(employeeNo) {
@@ -148,11 +149,11 @@ export default {
     async fetchGroupData() {
       try {
         const response = await axios.get('http://127.0.0.1:8000/user-management/group-list');
-        console.log("Fetched groups:", response.data); // 데이터 응답 구조를 확인합니다.
+        console.log("Fetched groups:", response.data);
         this.groups = response.data.user_groups.map(group => ({
-          id: group[0],              // ID
-          group_name: group[1],      // 권한 이름
-          description: group[2]      // 권한 설명
+          id: group[0],
+          group_name: group[1],
+          description: group[2]
         }));
       } catch (error) {
         console.error('Failed to fetch groups:', error);
@@ -189,25 +190,29 @@ export default {
         }
       }
     },
+
+
     async deleteSelectedItems() {
       if (this.currentView === 'user') {
-        const userIdsToDelete = this.selectedUsers;
+        const userIdsToDelete = [...this.selectedUsers];
         for (const employeeNo of userIdsToDelete) {
-          await this.deleteUser(employeeNo);
+          try {
+            await this.deleteUser(employeeNo);
+          } catch (error) {
+            console.error(`Failed to delete user ${employeeNo}:`, error);
+          }
         }
-        await this.fetchUserData();
-        if (userIdsToDelete.length > 0) {
-          alert("선택한 사용자가 성공적으로 삭제되었습니다!"); // 삭제 완료 메시지 추가
-        }
+        await this.fetchUserData(); // 삭제 후 사용자 데이터 새로 고침
       } else if (this.currentView === 'group') {
-        const groupIdsToDelete = this.selectedGroups;
+        const groupIdsToDelete = [...this.selectedGroups];
         for (const groupId of groupIdsToDelete) {
-          await this.deleteGroup(groupId);
+          try {
+            await this.deleteGroup(groupId);
+          } catch (error) {
+            console.error(`Failed to delete group ${groupId}:`, error);
+          }
         }
-        await this.fetchGroupData();
-        if (groupIdsToDelete.length > 0) {
-          alert("선택한 권한 그룹이 성공적으로 삭제되었습니다!"); // 삭제 완료 메시지 추가
-        }
+        await this.fetchGroupData(); // 삭제 후 그룹 데이터 새로 고침
       } else {
         alert("삭제할 항목을 선택하세요.");
       }
@@ -217,38 +222,30 @@ export default {
     async deleteUser(employeeNo) {
       try {
         const response = await axios.delete(`http://127.0.0.1:8000/user-management/user-delete/${employeeNo}`);
-        console.log(response.data.message);
+        console.log(response.data.message || "사용자 삭제 성공");
       } catch (error) {
         console.error(`Failed to delete user ${employeeNo}:`, error);
-        alert("사용자 삭제에 실패했습니다.");
+        alert(`사용자 삭제 실패: ${error.message}`);
       }
     },
     async deleteGroup(groupId) {
       try {
         const response = await axios.delete(`http://127.0.0.1:8000/user-management/group-delete/${groupId}`);
-        console.log(response.data.message);
+        console.log(response.data.message || "그룹 삭제 성공");
       } catch (error) {
         console.error(`Failed to delete group ${groupId}:`, error);
-        alert("권한 그룹 삭제에 실패했습니다.");
+        alert(`그룹 삭제 실패: ${error.message}`);
       }
     }
   },
   async created() {
-    const tab = this.$route.query.tab;
-    this.currentView = tab === 'group' ? 'group' : 'user';
-
-    await this.fetchUserData(); // 컴포넌트가 생성될 때 기본 사용자 데이터를 불러옴
-    await this.fetchGroupData(); // 그룹 데이터를 함께 불러옴
+    await this.fetchUserData();
+    await this.fetchGroupData();
   },
   watch: {
     '$route'(to) {
-      const tab = to.query.tab;
-      this.currentView = tab === 'group' ? 'group' : 'user';
-
-      if (this.currentView === 'user') {
-        this.fetchUserData();
-      } else {
-        this.fetchGroupData();
+      if (to.path === '/user-management') {
+        this.switchView(to.query.tab || 'user'); // **수정: query에 따른 탭 전환**
       }
     }
   }
