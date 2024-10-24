@@ -49,12 +49,13 @@
 <script>
 import ModelInsertUpload from '@/components/model_deployment/ModelInsert.vue';
 import ModelSelect from '@/components/model_deployment/ModelSelect.vue';
+import ProcessSelectComponent from '@/components/model_deployment/ProcessSelect.vue';
 
 export default {
   name: 'ModelDeploymentPage',
   components: {
     ModelInsertUpload,
-    ModelSelect,
+    ModelSelect
   },
   data() {
     return {
@@ -62,7 +63,7 @@ export default {
       modelDetails: [],
       selectedModel: '',
       file: null,
-      processes: ['공정 1', '공정 2', '공정 3'], // 공정 데이터
+      processes: ProcessSelectComponent.data().items, // 공정 데이터
       models: [], // 모델 파일 이름 배열
       selectedProcess: ''
     };
