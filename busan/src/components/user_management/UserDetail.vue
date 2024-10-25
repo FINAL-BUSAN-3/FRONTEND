@@ -4,18 +4,17 @@
     <hr class="divider"/>
 
     <div v-if="user">
-      <!-- 이름과 사번을 한 줄로 배치 -->
       <div class="user-info-inline">
         <p><strong>이름:</strong> {{ user.name }}</p>
         <p><strong>사번:</strong> {{ user.employeeNo }}</p>
       </div>
 
       <div v-if="availableRoles.length">
-        <!-- 권한: 옆에 체크박스 배치 -->
         <p class="roles-inline"><strong>권한:</strong>
-          <span class="role-checkbox">
+          <span class="role-radio">
             <label v-for="role in availableRoles" :key="role">
-              <input type="checkbox" v-model="userRoles" :value="role" /> {{ role }}
+              <!-- 라디오 버튼으로 변경하여 한 가지 권한만 선택 가능 -->
+              <input type="radio" v-model="userRole" :value="role" /> {{ role }}
             </label>
           </span>
         </p>
@@ -42,21 +41,22 @@ export default {
   data() {
     return {
       user: null,
-      userRoles: [],
-      availableRoles: []  // DB에서 가져온 권한 목록 저장
+      userRole: '', // 하나의 선택된 권한을 저장할 변수
+      availableRoles: [] // 전체 권한 목록
     };
   },
-  created() {
+  async created() {
     const userId = this.$route.params.userId;
-    this.fetchUser(userId);
-    this.fetchRoles();  // 권한 목록 가져오기
+    await this.fetchRoles(); // 권한 목록을 먼저 불러오고
+    await this.fetchUser(userId); // 사용자 정보를 불러와 권한 초기화
   },
   methods: {
     async fetchUser(userId) {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/user-management/user-detail/${userId}`);
         this.user = response.data;
-        this.userRoles = this.user.roles || [];
+        // 서버에서 가져온 권한을 설정 (단일 권한만 선택할 수 있도록)
+        this.userRole = this.user.position || ''; // 기존 권한을 userRole에 설정
       } catch (error) {
         console.error("Failed to fetch user data:", error);
         this.user = null;
@@ -81,7 +81,7 @@ export default {
       try {
         const updatedUser = {
           id: this.user.employeeNo,
-          roles: this.userRoles
+          position: this.userRole // 선택된 단일 권한을 서버로 전송
         };
         await axios.put(`http://127.0.0.1:8000/user-management/user-detail/${this.user.employeeNo}`, updatedUser);
         alert("사용자 권한이 성공적으로 저장되었습니다!");
@@ -133,7 +133,7 @@ p {
   flex-wrap: wrap;
 }
 
-.role-checkbox label {
+.role-radio label {
   margin-right: 15px;
 }
 

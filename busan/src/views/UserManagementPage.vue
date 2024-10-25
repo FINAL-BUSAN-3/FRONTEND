@@ -115,8 +115,17 @@ export default {
   },
   methods: {
     switchView(view) {
+      if (this.currentView === view) return; // 현재 탭과 같다면 아무 동작 안 함
       this.searchQuery = ''; // 검색어 초기화
       this.currentView = view;
+
+      // URL 쿼리를 필요한 경우에만 업데이트
+      const newQuery = view === 'group' ? { tab: 'group' } : { tab: 'user' };
+      if (this.$route.query.tab !== newQuery.tab) {
+        this.$router.replace({ path: '/user-management', query: newQuery }); // replace를 사용해 URL을 덮어씀
+      }
+
+      // 데이터 로드
       if (view === 'group') {
         this.fetchGroupData();
       } else {
@@ -127,11 +136,12 @@ export default {
       console.log('검색어:', this.searchQuery);
     },
     goToAdd() {
-      if (this.currentView === 'user') {
-        this.$router.push({ path: '/user-management/user-add' });
-      } else {
-        // 권한 추가 후 "권한 관리" 탭을 유지하기 위해 query 설정
-        this.$router.push({ path: '/user-management/group-add', query: { tab: 'group' } });
+  console.log("추가 버튼 클릭됨");
+  if (this.currentView === 'user') {
+    this.$router.push({ path: '/user-management/user-add' });
+  } else {
+    // 권한 추가 후 "권한 관리" 탭을 유지하기 위해 query 설정
+    this.$router.push({ path: '/user-management/group-add', query: { tab: 'group' } });
       }
     },
     goToUserDetail(employeeNo) {
@@ -190,8 +200,6 @@ export default {
         }
       }
     },
-
-
     async deleteSelectedItems() {
       if (this.currentView === 'user') {
         const userIdsToDelete = [...this.selectedUsers];
@@ -239,18 +247,30 @@ export default {
     }
   },
   async created() {
-    await this.fetchUserData();
-    await this.fetchGroupData();
+    const initialTab = this.$route.query.tab || 'user';
+    this.currentView = initialTab;
+    if (initialTab === 'group') {
+      await this.fetchGroupData();
+    } else {
+      await this.fetchUserData();
+    }
   },
   watch: {
-    '$route'(to) {
-      if (to.path === '/user-management') {
-        this.switchView(to.query.tab || 'user'); // **수정: query에 따른 탭 전환**
-      }
+    '$route.query.tab': {
+      handler(newTab) {
+        this.currentView = newTab || 'user';
+        if (newTab === 'group') {
+          this.fetchGroupData();
+        } else {
+          this.fetchUserData();
+        }
+      },
+      immediate: true
     }
   }
 };
 </script>
+
 
 
 

@@ -36,6 +36,7 @@ export default {
       try {
         const response = await axios.post('http://127.0.0.1:8000/user-management/group-add', group);
         alert(response.data.message || "그룹이 성공적으로 추가되었습니다!");
+        // 권한 추가 후 "권한 관리" 탭을 유지하기 위해 query 설정
         this.$router.push({ path: '/user-management', query: { tab: 'group' } });
       } catch (error) {
         console.error("Failed to add group:", error);
@@ -43,9 +44,11 @@ export default {
       }
     },
     goBack() {
-      this.$router.push({ path: '/user-management', query: { tab: 'group' } }); // 뒤로가기 경로 설정
+      // 뒤로가기를 눌러도 "권한 관리" 탭을 유지하도록 query 설정
+      this.$router.push({ path: '/user-management', query: { tab: 'group' } });
+      console.log("Navigating to /user-management with tab: group");
     }
-  } // 여기에서 methods 객체 닫기
+  } // methods 종료
 };
 </script>
 
