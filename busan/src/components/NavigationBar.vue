@@ -12,6 +12,11 @@
           </router-link>
         </li>
         <li>
+          <router-link to="/social"> <!-- 소셜지표 링크 추가 -->
+            <i class="fas fa-comments"></i> <span>소셜지표</span> <!-- 아이콘으로 댓글 아이콘 사용 -->
+          </router-link>
+        </li>
+        <li>
           <span><i class="fas fa-tools"></i> <span>엔지니어링 지표</span></span>
           <ul>
             <li><router-link to="/engineering/press"><i class="fas fa-cogs"></i> <span> 프레스</span></router-link></li>
@@ -77,6 +82,7 @@ export default {
 </script>
 
 <style scoped>
+/* 스타일은 이전과 동일 */
 .sidebar {
   width: 250px;
   background-color: #2E2E2E;
