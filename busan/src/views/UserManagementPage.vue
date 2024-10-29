@@ -29,7 +29,7 @@
             <th>이름</th>
             <th>사번</th>
             <th>권한</th>
-            <th>최근 기록</th>
+            <th>최근 로그인 기록</th>
           </tr>
         </thead>
         <tbody>
@@ -148,12 +148,17 @@ export default {
       this.$router.push({ path: `/user-management/user-detail/${employeeNo}` });
     },
     async fetchUserData() {
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/user-management/user-list');
-        console.log("Fetched users:", response.data.employees);
-        this.users = response.data.employees;
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/user-management/user-list');
+    console.log("Fetched users:", response.data.employees);
+
+    // lastLogin 필드에 날짜와 시간 포함하여 표시
+    this.users = response.data.employees.map(user => ({
+      ...user,
+      lastLogin: new Date(user.lastLogin).toLocaleString() // 날짜와 시간 포맷
+    }));
+  } catch (error) {
+    console.error("Failed to fetch user data:", error);
       }
     },
     async fetchGroupData() {
@@ -383,7 +388,7 @@ button:hover {
 }
 
 .user-table thead tr, .group-table thead tr {
-  background-color: #e4e5eb;
+  background-color: #caccd7;
 }
 
 .user-table th, .user-table td, .group-table th, .group-table td {
