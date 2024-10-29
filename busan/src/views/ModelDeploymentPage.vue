@@ -1,8 +1,9 @@
 <template>
   <div class="model-deployment">
-    <div v-if="!uploadSuccess">
-      <h2>모델 배포</h2>
+    <h2>모델 배포</h2>
 
+    <!-- 업로드 화면 -->
+    <div v-if="!uploadSuccess">
       <div class="selection-container">
         <!-- 공정 선택 -->
         <div class="process-section">
@@ -13,80 +14,179 @@
           </select>
         </div>
 
-        <!-- 모델 선택 -->
+        <!-- 모델 선택 및 파일 업로드 영역 -->
         <div class="model-section">
           <label for="model-select">모델</label>
-          <!-- ModelSelect 컴포넌트를 사용 -->
-          <ModelSelect @update:modelFileNames="updateModelFileNames" />
-          <select id="model-select" v-model="selectedModel">
-            <option value="" disabled>모델을 선택해 주세요</option>
-            <option v-for="model in models" :key="model" :value="model">{{ model }}</option>
-          </select>
-        </div>  
+          <div class="model-tabs">
+            <button :class="{ active: isPreviousModel }" @click="selectPreviousModel">이전 모델</button>
+            <button :class="{ active: !isPreviousModel }" @click="selectNewModel">신규 모델</button>
+          </div>
+
+          <div v-if="isPreviousModel">
+            <ModelSelectComponent @update:modelFileNames="updateModelFileNames" />
+            <select id="model-select" v-model="selectedModel">
+              <option value="" disabled>모델을 선택해 주세요</option>
+              <option v-for="model in models" :key="model" :value="model">{{ model }}</option>
+            </select>
+          </div>
+          <div v-else>
+            <div class="file-upload">
+              <label for="file">파일 선택</label>
+              <input type="file" id="file" @change="handleFileUpload" ref="fileInput" />
+              <button v-if="file" @click="clearFile" class="clear-button">X</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 파일 업로드 기능 -->
-      <div class="file-upload">
-        <label for="file">모델 파일 업로드:</label>
-        <input type="file" id="file" @change="handleFileUpload" ref="fileInput" />
-        <button v-if="file" @click="clearFile" class="clear-button">X</button>
+      <!-- 모델 정보와 성능 표 -->
+      <div class="combined-info-container">
+        <div class="model-info">
+          <div class="model-icon">
+            <img src="@/assets/model_icon_black.png" alt="모델 아이콘" />
+          </div>
+          <div class="model-details">
+            <p>* 모델명: <span v-if="isPreviousModel">{{ selectedModelInfo.model_name || '' }}</span>
+              <input v-else v-model="newModelInfo.model_name" placeholder="모델명 입력" /></p>
+            <p>* 모델 버전: <span v-if="isPreviousModel">{{ selectedModelInfo.model_version || '' }}</span>
+              <input v-else v-model="newModelInfo.model_version" placeholder="모델 버전 입력" /></p>
+            <p>* 파이썬 버전: <span v-if="isPreviousModel">{{ selectedModelInfo.python_version || '' }}</span>
+              <input v-else v-model="newModelInfo.python_version" placeholder="파이썬 버전 입력" /></p>
+            <p>* 라이브러리: <span v-if="isPreviousModel">{{ selectedModelInfo.library || '' }}</span>
+              <input v-else v-model="newModelInfo.library" placeholder="라이브러리 입력" /></p>
+            <p>* 모델 종류: <span v-if="isPreviousModel">{{ selectedModelInfo.model_type || '' }}</span>
+              <input v-else v-model="newModelInfo.model_type" placeholder="모델 종류 입력" /></p>
+          </div>
+        </div>
+
+        <table class="performance-table">
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>값</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Loss</td>
+              <td>
+                <span v-if="isPreviousModel">{{ selectedModelInfo.loss || '-' }}</span>
+                <input v-else v-model="newModelInfo.loss" placeholder="Loss 값 입력" />
+              </td>
+            </tr>
+            <tr>
+              <td>Accuracy</td>
+              <td>
+                <span v-if="isPreviousModel">{{ selectedModelInfo.accuracy || '-' }}</span>
+                <input v-else v-model="newModelInfo.accuracy" placeholder="Accuracy 값 입력" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- 업로드 버튼 -->
-      <ModelInsertUpload @click="uploadModel" />
+      <button class="upload-button" @click="handleUpload">Upload</button>
     </div>
 
-    <div v-else>
-      <h2>모델 비교</h2>
-      <div class="model-comparison">
-        <!-- 모델 비교 정보 -->
+    <!-- 업로드 성공 후 상세 정보 화면 -->
+    <div v-else class="deployment-details">
+      <div class="model-info-box">
+        <img src="@/assets/model_icon_black.png" alt="모델 아이콘" class="model-icon-large" />
+        <div class="model-info-text">
+          <p>* 모델명 : {{ displayModelInfo.model_name }}</p>
+          <p>* 모델 버전 : {{ displayModelInfo.model_version }}</p>
+          <p>* 파이썬 버전 : {{ displayModelInfo.python_version }}</p>
+          <p>* 라이브러리 : {{ displayModelInfo.library }}</p>
+          <p>* 모델 종류 : {{ displayModelInfo.model_type }}</p>
+          <p>* 배포일자 : {{ displayModelInfo.deployment_date }}</p>
+        </div>
       </div>
-      <button @click="deployModel" class="deploy-button">배포</button>
+
+      <div class="detail-table">
+        <table class="performance-table">
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>값</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Loss</td>
+              <td>{{ displayModelInfo.loss || '-' }}</td>
+            </tr>
+            <tr>
+              <td>Accuracy</td>
+              <td>{{ displayModelInfo.accuracy || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button class="deploy-button" @click="sendToModelApply">배포</button>
     </div>
+
+    <!-- ModelApply 컴포넌트를 조건부 렌더링하여 데이터 전송 -->
+    <ModelApply 
+      v-if="sendModelApply" 
+      :modelData="displayModelInfo" 
+      :modelFile="file" 
+      @deploy-success="showPopup('배포 성공!')" 
+      @deploy-failure="showPopup('배포 실패')"
+    />
   </div>
 </template>
 
 <script>
-import ModelInsertUpload from '@/components/model_deployment/ModelInsert.vue';
-import ModelSelect from '@/components/model_deployment/ModelSelect.vue';
-import ProcessSelectComponent from '@/components/model_deployment/ProcessSelect.vue';
+import ModelSelectComponent from "@/components/model_deployment/ModelSelect.vue";
+import ModelApply from "@/components/model_deployment/ModelApply.vue";
 
 export default {
-  name: 'ModelDeploymentPage',
+  name: "ModelDeploymentPage",
   components: {
-    ModelInsertUpload,
-    ModelSelect
+    ModelSelectComponent,
+    ModelApply,
   },
   data() {
     return {
       uploadSuccess: false,
-      modelDetails: [],
-      selectedModel: '',
+      sendModelApply: false,
+      selectedProcess: "",
+      selectedModel: "",
+      processes: ["프레스", "용접"],
+      models: [],
+      selectedModelInfo: {},
+      newModelInfo: {
+        model_name: "",
+        model_version: "",
+        python_version: "",
+        library: "",
+        model_type: "",
+        loss: "",
+        accuracy: "",
+      },
+      displayModelInfo: {},
+      isPreviousModel: true,
       file: null,
-      processes: ProcessSelectComponent.data().items, // 공정 데이터
-      models: [], // 모델 파일 이름 배열
-      selectedProcess: ''
     };
   },
   methods: {
     updateModelFileNames(model_file_names) {
-      this.models = model_file_names; // ModelSelect에서 가져온 데이터 업데이트
+      this.models = model_file_names;
     },
-    uploadModel() {
-      if (!this.selectedModel) {
-        alert('업로드 실패: 모델을 선택해 주세요.');
-        return;
-      }
-      if (!this.file) {
-        alert('업로드 실패: 파일을 업로드해 주세요.');
-        return;
-      }
-      this.uploadSuccess = true;
-      alert('업로드 성공!');
+    selectPreviousModel() {
+      this.isPreviousModel = true;
+      this.file = null;
+      this.selectedModel = "";
     },
-    deployModel() {
-      alert('배포 성공!');
-      this.uploadSuccess = false;
+    selectNewModel() {
+      this.isPreviousModel = false;
+      this.selectedModel = "";
+    },
+    handleFileUpload(event) {
+      if (event.target.files.length > 0) {
+        this.file = event.target.files[0];
+      }
     },
     clearFile() {
       this.file = null;
@@ -94,14 +194,39 @@ export default {
         this.$refs.fileInput.value = null;
       }
     },
-    handleFileUpload(event) {
-      if (event.target.files.length > 0) {
-        this.file = event.target.files[0];
+    handleUpload() {
+      if (!this.selectedProcess) {
+        alert("공정을 선택해 주세요.");
+        return;
       }
-    }
+      if (this.isPreviousModel && !this.selectedModel) {
+        alert("이전 모델을 선택해 주세요.");
+        return;
+      }
+      if (!this.isPreviousModel && !this.file) {
+        alert("파일을 업로드해 주세요.");
+        return;
+      }
+      if (!this.isPreviousModel && (!this.newModelInfo.model_name || !this.newModelInfo.model_version || !this.newModelInfo.python_version || !this.newModelInfo.library || !this.newModelInfo.model_type || !this.newModelInfo.loss || !this.newModelInfo.accuracy)) {
+        alert("신규 모델의 모든 정보를 입력해 주세요.");
+        return;
+      }
+
+      // 모델 정보를 displayModelInfo에 설정
+      this.displayModelInfo = this.isPreviousModel ? this.selectedModelInfo : this.newModelInfo;
+      this.displayModelInfo.deployment_date = new Date().toISOString().slice(0, 19).replace("T", " ");
+      this.uploadSuccess = true;
+    },
+    sendToModelApply() {
+      this.sendModelApply = true; // ModelApply 컴포넌트를 렌더링하여 FastAPI로 전송
+    },
+    showPopup(message) {
+      alert(message); // 성공 또는 실패 메시지 팝업
+    },
   },
 };
 </script>
+
 
 <style scoped>
 .model-deployment {
@@ -114,51 +239,41 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 .selection-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%; /* 선택창의 전체 너비 조정 */
   gap: 20px;
 }
 
 .process-section,
-.model-section,
-.file-upload {
+.model-section {
+  width: 100%;
   margin-bottom: 20px;
-  width: 100%; /* 파일 업로드와 동일한 너비 설정 */
 }
 
-.model-comparison {
+.model-tabs {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  gap: 10px;
 }
 
-.model-detail {
-  width: 48%;
-  background-color: #3a3f47;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+.model-tabs button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+.model-tabs button.active {
+  background-color: #ff4081;
 }
 
-select,
-input[type="file"] {
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 1em;
+.file-upload {
+  display: flex;
+  align-items: center;
 }
 
 .clear-button {
@@ -170,14 +285,40 @@ input[type="file"] {
   margin-left: 10px;
 }
 
+.model-info-box {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.model-icon-large {
+  width: 80px;
+  height: 80px;
+}
+
+.model-info-text p {
+  margin: 0;
+}
+
+.detail-table {
+  margin-top: 20px;
+}
+
+.performance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
 .deploy-button {
   margin-top: 20px;
-  background-color: #4caf50;
+  background-color: #ff4081;
   color: white;
   padding: 10px 20px;
-  text-decoration: none;
   border-radius: 5px;
-  text-align: center;
-  cursor: pointer;
 }
 </style>
