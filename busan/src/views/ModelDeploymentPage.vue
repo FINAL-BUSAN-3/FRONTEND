@@ -5,7 +5,6 @@
     <!-- 업로드 화면 -->
     <div v-if="!uploadSuccess">
       <div class="selection-container">
-        <!-- 공정 선택 -->
         <div class="process-section">
           <label for="process-select">공정</label>
           <select id="process-select" v-model="selectedProcess">
@@ -14,7 +13,6 @@
           </select>
         </div>
 
-        <!-- 모델 선택 및 파일 업로드 영역 -->
         <div class="model-section">
           <label for="model-select">모델</label>
           <div class="model-tabs">
@@ -24,7 +22,7 @@
 
           <div v-if="isPreviousModel">
             <ModelSelectComponent @update:modelFileNames="updateModelFileNames" />
-            <select id="model-select" v-model="selectedModel">
+            <select id="model-select" v-model="selectedModel" @change="onModelChange">
               <option value="" disabled>모델을 선택해 주세요</option>
               <option v-for="model in models" :key="model" :value="model">{{ model }}</option>
             </select>
@@ -46,16 +44,26 @@
             <img src="@/assets/model_icon_black.png" alt="모델 아이콘" />
           </div>
           <div class="model-details">
-            <p>* 모델명: <span v-if="isPreviousModel">{{ selectedModelInfo.model_name || '' }}</span>
-              <input v-else v-model="newModelInfo.model_name" placeholder="모델명 입력" /></p>
-            <p>* 모델 버전: <span v-if="isPreviousModel">{{ selectedModelInfo.model_version || '' }}</span>
-              <input v-else v-model="newModelInfo.model_version" placeholder="모델 버전 입력" /></p>
-            <p>* 파이썬 버전: <span v-if="isPreviousModel">{{ selectedModelInfo.python_version || '' }}</span>
-              <input v-else v-model="newModelInfo.python_version" placeholder="파이썬 버전 입력" /></p>
-            <p>* 라이브러리: <span v-if="isPreviousModel">{{ selectedModelInfo.library || '' }}</span>
-              <input v-else v-model="newModelInfo.library" placeholder="라이브러리 입력" /></p>
-            <p>* 모델 종류: <span v-if="isPreviousModel">{{ selectedModelInfo.model_type || '' }}</span>
-              <input v-else v-model="newModelInfo.model_type" placeholder="모델 종류 입력" /></p>
+            <p>* 모델명: 
+              <span v-if="isPreviousModel">{{ selectedModelInfo.model_name || '' }}</span>
+              <input v-else v-model="newModelInfo.model_name" placeholder="모델명 입력" />
+            </p>
+            <p>* 모델 버전: 
+              <span v-if="isPreviousModel">{{ selectedModelInfo.model_version || '' }}</span>
+              <input v-else v-model="newModelInfo.model_version" placeholder="모델 버전 입력" />
+            </p>
+            <p>* 파이썬 버전: 
+              <span v-if="isPreviousModel">{{ selectedModelInfo.python_version || '' }}</span>
+              <input v-else v-model="newModelInfo.python_version" placeholder="파이썬 버전 입력" />
+            </p>
+            <p>* 라이브러리: 
+              <span v-if="isPreviousModel">{{ selectedModelInfo.library || '' }}</span>
+              <input v-else v-model="newModelInfo.library" placeholder="라이브러리 입력" />
+            </p>
+            <p>* 모델 종류: 
+              <span v-if="isPreviousModel">{{ selectedModelInfo.model_type || '' }}</span>
+              <input v-else v-model="newModelInfo.model_type" placeholder="모델 종류 입력" />
+            </p>
           </div>
         </div>
 
@@ -90,43 +98,97 @@
 
     <!-- 업로드 성공 후 상세 정보 화면 -->
     <div v-else class="deployment-details">
-      <div class="model-info-box">
-        <img src="@/assets/model_icon_black.png" alt="모델 아이콘" class="model-icon-large" />
-        <div class="model-info-text">
-          <p>* 모델명 : {{ displayModelInfo.model_name }}</p>
-          <p>* 모델 버전 : {{ displayModelInfo.model_version }}</p>
-          <p>* 파이썬 버전 : {{ displayModelInfo.python_version }}</p>
-          <p>* 라이브러리 : {{ displayModelInfo.library }}</p>
-          <p>* 모델 종류 : {{ displayModelInfo.model_type }}</p>
-          <p>* 배포일자 : {{ displayModelInfo.deployment_date }}</p>
+      <div class="info-container">
+        <!-- 왼쪽: 현재 사용 중인 모델 정보 -->
+        <div class="info-table">
+          <h3>현재 사용 중인 모델</h3>
+          <table class="performance-table">
+            <thead>
+              <tr>
+                <th>항목</th>
+                <th>값</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>모델명</td>
+                <td>{{ activeModelInfo.model_name || '-' }}</td>
+              </tr>
+              <tr>
+                <td>모델 버전</td>
+                <td>{{ activeModelInfo.model_version || '-' }}</td>
+              </tr>
+              <tr>
+                <td>파이썬 버전</td>
+                <td>{{ activeModelInfo.python_version || '-' }}</td>
+              </tr>
+              <tr>
+                <td>라이브러리</td>
+                <td>{{ activeModelInfo.library || '-' }}</td>
+              </tr>
+              <tr>
+                <td>모델 종류</td>
+                <td>{{ activeModelInfo.model_type || '-' }}</td>
+              </tr>
+              <tr>
+                <td>Loss</td>
+                <td>{{ activeModelInfo.loss || '-' }}</td>
+              </tr>
+              <tr>
+                <td>Accuracy</td>
+                <td>{{ activeModelInfo.accuracy || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
 
-      <div class="detail-table">
-        <table class="performance-table">
-          <thead>
-            <tr>
-              <th>항목</th>
-              <th>값</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Loss</td>
-              <td>{{ displayModelInfo.loss || '-' }}</td>
-            </tr>
-            <tr>
-              <td>Accuracy</td>
-              <td>{{ displayModelInfo.accuracy || '-' }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- 오른쪽: 업로드된 모델 정보 -->
+        <div class="info-table">
+          <h3>선택된 모델 정보</h3>
+          <table class="performance-table">
+            <thead>
+              <tr>
+                <th>항목</th>
+                <th>값</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>모델명</td>
+                <td>{{ displayModelInfo.model_name }}</td>
+              </tr>
+              <tr>
+                <td>모델 버전</td>
+                <td>{{ displayModelInfo.model_version }}</td>
+              </tr>
+              <tr>
+                <td>파이썬 버전</td>
+                <td>{{ displayModelInfo.python_version }}</td>
+              </tr>
+              <tr>
+                <td>라이브러리</td>
+                <td>{{ displayModelInfo.library }}</td>
+              </tr>
+              <tr>
+                <td>모델 종류</td>
+                <td>{{ displayModelInfo.model_type }}</td>
+              </tr>
+              <tr>
+                <td>Loss</td>
+                <td>{{ displayModelInfo.loss || '-' }}</td>
+              </tr>
+              <tr>
+                <td>Accuracy</td>
+                <td>{{ displayModelInfo.accuracy || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <button class="deploy-button" @click="sendToModelApply">배포</button>
     </div>
 
-    <!-- ModelApply 컴포넌트를 조건부 렌더링하여 데이터 전송 -->
     <ModelApply 
       v-if="sendModelApply" 
       :modelData="displayModelInfo" 
@@ -140,6 +202,7 @@
 <script>
 import ModelSelectComponent from "@/components/model_deployment/ModelSelect.vue";
 import ModelApply from "@/components/model_deployment/ModelApply.vue";
+import axios from 'axios';
 
 export default {
   name: "ModelDeploymentPage",
@@ -166,11 +229,20 @@ export default {
         accuracy: "",
       },
       displayModelInfo: {},
+      activeModelInfo: {}, 
       isPreviousModel: true,
       file: null,
     };
   },
   methods: {
+    async fetchActiveModelInfo() {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/model-deployment/model-detail");
+        this.activeModelInfo = response.data;
+      } catch (error) {
+        console.error("현재 사용 중인 모델 정보를 불러오는데 실패했습니다:", error);
+      }
+    },
     updateModelFileNames(model_file_names) {
       this.models = model_file_names;
     },
@@ -178,10 +250,20 @@ export default {
       this.isPreviousModel = true;
       this.file = null;
       this.selectedModel = "";
+      this.selectedModelInfo = {};
     },
     selectNewModel() {
       this.isPreviousModel = false;
       this.selectedModel = "";
+      this.newModelInfo = {
+        model_name: "",
+        model_version: "",
+        python_version: "",
+        library: "",
+        model_type: "",
+        loss: "",
+        accuracy: "",
+      };
     },
     handleFileUpload(event) {
       if (event.target.files.length > 0) {
@@ -194,7 +276,7 @@ export default {
         this.$refs.fileInput.value = null;
       }
     },
-    handleUpload() {
+    async handleUpload() {
       if (!this.selectedProcess) {
         alert("공정을 선택해 주세요.");
         return;
@@ -212,21 +294,30 @@ export default {
         return;
       }
 
-      // 모델 정보를 displayModelInfo에 설정
       this.displayModelInfo = this.isPreviousModel ? this.selectedModelInfo : this.newModelInfo;
       this.displayModelInfo.deployment_date = new Date().toISOString().slice(0, 19).replace("T", " ");
       this.uploadSuccess = true;
     },
+    async onModelChange() {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/model-deployment/model-info/${this.selectedModel}`);
+        this.selectedModelInfo = response.data;
+      } catch (error) {
+        console.error("모델 정보 로드 실패:", error);
+      }
+    },
     sendToModelApply() {
-      this.sendModelApply = true; // ModelApply 컴포넌트를 렌더링하여 FastAPI로 전송
+      this.sendModelApply = true;
     },
     showPopup(message) {
-      alert(message); // 성공 또는 실패 메시지 팝업
+      alert(message);
     },
   },
+  async created() {
+    await this.fetchActiveModelInfo();
+  }
 };
 </script>
-
 
 <style scoped>
 .model-deployment {
@@ -285,23 +376,15 @@ export default {
   margin-left: 10px;
 }
 
-.model-info-box {
+.info-container {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: 20px;
 }
 
-.model-icon-large {
-  width: 80px;
-  height: 80px;
-}
-
-.model-info-text p {
-  margin: 0;
-}
-
-.detail-table {
-  margin-top: 20px;
+.info-table {
+  flex: 1;
 }
 
 .performance-table {
