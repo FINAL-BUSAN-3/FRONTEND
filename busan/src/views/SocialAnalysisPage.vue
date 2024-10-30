@@ -1,6 +1,5 @@
 <template>
   <div class="social-analysis-page">
-    <!-- 예측 판매량 카드 -->
     <div class="header">
       <h2>예측 판매량</h2>
       <span class="estimated-sales">00%</span>
@@ -81,20 +80,19 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 500px;
-  height: 100px;
-
-  color: #003366;
-  padding: 10px 20px;
-  font-size: 1.5em;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  border: 3px solid #a8b2c6;
+  background-color: #dde0e3;
+  color: #003366; /* 텍스트 색상 변경 */
+  padding: 15px 40px;
+  font-size: 2em;
+  border-radius: 10px; /* 테두리 둥글기 조절 */
+  border: 2px solid #d2d2d4; /* 테두리 색 */
+  width: 100%; /* 헤더 너비를 100%로 설정하여 카드와 일치 */
+  max-width: 1150px; /* 최대 너비를 카드와 동일하게 설정 */
+  margin: 25px auto 10px; /* 중앙 정렬 및 위아래 여백 */
+  box-sizing: border-box;
 }
-
 .estimated-sales {
-  font-size: 1.2em;
+  font-size: 1.5em;
 }
 
 .social-analysis-page {

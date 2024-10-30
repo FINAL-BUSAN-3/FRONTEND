@@ -262,12 +262,16 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fcfcfc;
+  background-color: #dde0e3;
   color: #003366; /* 텍스트 색상 변경 */
-  padding: 15px 80px;
+  padding: 15px 40px;
   font-size: 2em;
   border-radius: 10px; /* 테두리 둥글기 조절 */
-  border: 3px solid #a8b2c6; /* 테두리 색 */
+  border: 2px solid #d2d2d4; /* 테두리 색 */
+  width: 100%; /* 헤더 너비를 100%로 설정하여 카드와 일치 */
+  max-width: 1150px; /* 최대 너비를 카드와 동일하게 설정 */
+  margin: 0px auto 10px; /* 중앙 정렬 및 위아래 여백 */
+  box-sizing: border-box;
 }
 
 
@@ -277,7 +281,7 @@ export default {
 
 .chart-card {
   width: 700px; /* 카드의 고정 너비 */
-  height: 430px; /* 카드의 고정 높이 */
+  height: 420px; /* 카드의 고정 높이 */
   background-color: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -335,10 +339,5 @@ export default {
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
-}
-
-.monthly-production-card {
-  width: 1000px; /* 원하는 너비 */
-  height: 400px; /* 원하는 높이 */
 }
 </style>
