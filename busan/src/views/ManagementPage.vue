@@ -156,7 +156,7 @@ export default {
           labels: ["양품", "불량품"],
           datasets: [{
             data: this.weldingData,
-            backgroundColor: ["#4CAF50", "#e63312"]
+            backgroundColor: ["#4CAF50", "#F44336"]
           }]
         },
         options: {
@@ -262,12 +262,12 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: white; /* 흰색 배경으로 변경 */
+  background-color: #fcfcfc;
   color: #003366; /* 텍스트 색상 변경 */
   padding: 15px 80px;
   font-size: 2em;
   border-radius: 10px; /* 테두리 둥글기 조절 */
-  border: 2px solid #BDBDBD; /* 테두리 색을 원래 배경색으로 */
+  border: 3px solid #a8b2c6; /* 테두리 색 */
 }
 
 
@@ -284,7 +284,7 @@ export default {
   padding: 20px;
   text-align: center;
   margin: 10px;
-  border: 2px solid #BDBDBD; /* 원하는 테두리 색상 */
+  border: 1px solid #a8b2c6;
 }
 
 .chart-title {

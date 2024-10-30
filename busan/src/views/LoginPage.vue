@@ -87,30 +87,31 @@ export default {
 
 h2 {
   color: #333;
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  margin-bottom: 1.3rem;
 }
 
 .input-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   text-align: left;
 }
 
 .input-group label {
   display: block;
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
   color: #555;
 }
 
 .input-group input {
   width: 100%;  /* 입력 필드 너비 100%로 설정 */
   padding: 0.75rem;
-  font-size: 1rem;
+  font-size: 1.2rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   outline: none;
   transition: border-color 0.3s ease;
+  margin-bottom: 0.5rem;
 }
 
 .input-group input:focus {
@@ -118,15 +119,16 @@ h2 {
 }
 
 .login-button {
-  width: 100%;  /* 버튼 너비 100%로 설정 */
+  width: 104%;
   padding: 0.75rem;
-  font-size: 1rem;
+  font-size: 1.2rem;
   background-color: #0056b3;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-weight: bold;
 }
 
 .login-button:hover {

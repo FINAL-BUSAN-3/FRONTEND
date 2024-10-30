@@ -17,16 +17,21 @@ export default [
     name: 'NpratioAll',
     component: () => import('../components/social/NpratioAll.vue'),
   },
-  {
-    path: '/social/np-ratio/car',
-    name: 'NpratioCar',
-    component: () => import('../components/social/NpratioCar.vue'),
-  },
-  {
+//  {
+//    path: '/social/np-ratio/car',
+//    name: 'NpratioCar',
+//    component: () => import('../components/social/NpratioCar.vue'),
+//  },
+//  {
+//    path: '/social/np-ratio/journal',
+//    name: 'NpratioJournal',
+//    component: () => import('../components/social/NpratioJournal.vue'),
+//  },
+    {
     path: '/social/np-ratio/journal',
-    name: 'NpratioJournal',
-    component: () => import('../components/social/NpratioJournal.vue'),
-  },
+    name: 'NpratioArticle',
+    component: () => import('../components/social/NpratioArticle.vue'),
+    },
   {
     path: '/social/count/journal',
     name: 'CountJournal',
