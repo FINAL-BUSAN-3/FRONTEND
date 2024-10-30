@@ -20,7 +20,7 @@
           <td>{{ item.machine_name }}</td>
           <td>{{ item.item_no }}</td>
           <td>{{ item.working_time }}</td>
-          <td>{{ item['press_time(ms)'] }}</td> 
+          <td>{{ item.press_time_ms }}</td> 
           <td>{{ item.pressure_1 }}</td>
           <td>{{ item.pressure_2 }}</td>
           <td>{{ item.pressure_5 }}</td>
