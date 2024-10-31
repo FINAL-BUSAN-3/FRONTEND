@@ -4,27 +4,40 @@
       <h2>월 총 생산량</h2>
       <span class="production-rate">887 대/일</span>
     </div>
+
+    <!-- 프레스와 용접 데이터를 하나의 카드로 묶고 버튼을 하단 중앙에 배치 -->
     <div class="chart-row">
-      <div class="chart-item">
-        <h3 class="chart-title">프레스 데이터</h3>
-        <canvas id="pressChart"></canvas>
+      <div class="chart-card">
+        <div class="combined-chart">
+          <div class="chart-item">
+            <h3 class="chart-title">프레스</h3>
+            <canvas id="pressChart"></canvas>
+          </div>
+          <div class="chart-item">
+            <h3 class="chart-title">용접</h3>
+            <canvas id="weldingChart"></canvas>
+          </div>
+        </div>
+        <div class="button-group-inside-card">
+          <button @click="setPeriod('day')">일간</button>
+          <button @click="setPeriod('week')">주간</button>
+          <button @click="setPeriod('month')">월간</button>
+        </div>
       </div>
-      <div class="chart-item">
-        <h3 class="chart-title">용접 데이터</h3>
-        <canvas id="weldingChart"></canvas>
-      </div>
-      <div class="chart-item">
-        <h3 class="chart-title">주가 데이터</h3>
-        <canvas id="stockChart"></canvas>
+      <div class="chart-card">
+        <h3 class="chart-title">현대 & 기아자동차 주가</h3>
+        <div class="chart-item">
+          <canvas id="stockChart"></canvas>
+        </div>
       </div>
     </div>
-    <div class="button-group">
-      <button @click="setPeriod('day')">일간</button>
-      <button @click="setPeriod('week')">주간</button>
-      <button @click="setPeriod('month')">월간</button>
-    </div>
+
+    <!-- 월간 생산량 그래프 카드로 유지 -->
     <div class="line-chart-container">
-      <canvas id="monthlyProductionChart"></canvas>
+      <div class="chart-card">
+        <h3 class="chart-title">월간 생산량</h3>
+        <canvas id="monthlyProductionChart"></canvas>
+      </div>
     </div>
   </div>
 </template>
@@ -39,8 +52,7 @@ import pressMonth from '@/components/management/PressMonth.vue';
 import weldingDay from '@/components/management/WeldingDay.vue';
 import weldingWeek from '@/components/management/WeldingWeek.vue';
 import weldingMonth from '@/components/management/WeldingMonth.vue';
-import stockChartData from '@/components/management/StockChart.vue';
-import yearSales from '@/components/management/YearSales.vue';
+import axios from 'axios';
 
 export default {
   name: "ManagementView",
@@ -60,7 +72,13 @@ export default {
         day: weldingDay.data().weldingData,
         week: weldingWeek.data().weldingData,
         month: weldingMonth.data().weldingData
-      }
+      },
+      hdStockData: [],
+      kiaStockData: [],
+      stockLabels: [],
+      hdSalesData: [],
+      kiaSalesData: [],
+      salesLabels: []
     };
   },
   computed: {
@@ -72,6 +90,37 @@ export default {
     }
   },
   methods: {
+    async fetchSalesData() {
+      try {
+        const hdResponse = await axios.get('http://127.0.0.1:8000/sales/hd');
+        this.hdSalesData = hdResponse.data.map(item => item.count);
+        this.salesLabels = hdResponse.data.map(item => item.year);
+
+        const kiaResponse = await axios.get('http://127.0.0.1:8000/sales/kia');
+        this.kiaSalesData = kiaResponse.data.map(item => item.count);
+
+        this.createMonthlyProductionChart();
+      } catch (error) {
+        console.error("판매 데이터를 불러오는 데 실패했습니다:", error);
+      }
+    },
+    async fetchStockData() {
+      try {
+        const hyundaiResponse = await axios.get('http://127.0.0.1:8000/stock-history/005380');
+        const kiaResponse = await axios.get('http://127.0.0.1:8000/stock-history/000270');
+
+        const hyundaiData = hyundaiResponse.data;
+        const kiaData = kiaResponse.data;
+
+        this.stockLabels = hyundaiData.map(item => item.time);
+        this.hdStockData = hyundaiData.map(item => item.price);
+        this.kiaStockData = kiaData.map(item => item.price);
+
+        this.createStockChart();
+      } catch (error) {
+        console.error("주가 데이터를 불러오는 데 실패했습니다:", error);
+      }
+    },
     renderCharts() {
       this.createPressChart();
       this.createWeldingChart();
@@ -107,7 +156,7 @@ export default {
           labels: ["양품", "불량품"],
           datasets: [{
             data: this.weldingData,
-            backgroundColor: ["#4CAF50", "#e63312"]
+            backgroundColor: ["#4CAF50", "#F44336"]
           }]
         },
         options: {
@@ -124,17 +173,33 @@ export default {
       this.stockChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: stockChartData.data().stockLabels, // stockLabels 확인
-          datasets: [{
-            label: '주가',
-            data: stockChartData.data().stockData, // stockData로 수정
-            borderColor: '#3e95cd',
-            fill: false
-          }]
+          labels: this.stockLabels,
+          datasets: [
+            {
+              label: '현대차 주가',
+              data: this.hdStockData,
+              borderColor: '#00aad2',
+              fill: false
+            },
+            {
+              label: '기아차 주가',
+              data: this.kiaStockData,
+              borderColor: '#9b111e',
+              fill: false
+            }
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 20 // 아이콘과 텍스트 사이 간격 조정
+          }
+        }
+      },
           scales: {
             x: { title: { display: true, text: '시간' }},
             y: { title: { display: true, text: '가격 (₩)' }}
@@ -148,13 +213,21 @@ export default {
       this.monthlyProductionChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: yearSales.data().salesLabels,
-          datasets: [{
-            label: '연도별 판매량',
-            data: yearSales.data().salesData,
-            borderColor: '#ff9800',
-            fill: false
-          }]
+          labels: this.salesLabels,
+          datasets: [
+            {
+              label: '현대자동차',
+              data: this.hdSalesData,
+              borderColor: '#00aad2',
+              fill: false
+            },
+            {
+              label: '기아자동차',
+              data: this.kiaSalesData,
+              borderColor: '#9b111e',
+              fill: false
+            }
+          ]
         },
         options: {
           responsive: true,
@@ -173,90 +246,98 @@ export default {
   },
   mounted() {
     this.renderCharts();
+    this.fetchStockData();
+    this.fetchSalesData();
+    setInterval(this.fetchStockData, 720000);
   }
 };
 </script>
 
 <style scoped>
 .management-view {
-  padding: 100px;
+  padding: 30px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #003366;
-  color: white;
-  padding: 20px 20px;
+  background-color: #dde0e3;
+  color: #003366; /* 텍스트 색상 변경 */
+  padding: 15px 40px;
   font-size: 2em;
+  border-radius: 10px; /* 테두리 둥글기 조절 */
+  border: 2px solid #d2d2d4; /* 테두리 색 */
+  width: 100%; /* 헤더 너비를 100%로 설정하여 카드와 일치 */
+  max-width: 1150px; /* 최대 너비를 카드와 동일하게 설정 */
+  margin: 0px auto 10px; /* 중앙 정렬 및 위아래 여백 */
+  box-sizing: border-box;
 }
+
 
 .production-rate {
   font-size: 1.5em;
 }
 
-.button-group {
-  display: flex;
-  justify-content: center; /* 중앙 정렬 */
-  margin-top: 50px;
-  margin-bottom: 40px; /* 버튼과 아래 요소 사이의 간격 */
-  margin-left:-33%; /* 왼쪽으로 이동 (조정 가능) */
+.chart-card {
+  width: 700px; /* 카드의 고정 너비 */
+  height: 420px; /* 카드의 고정 높이 */
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  margin: 10px;
+  border: 1px solid #a8b2c6;
 }
 
-.button-group button {
-  padding: 5px 10px;
-  margin: 0 3px;
-  font-size: 1em;
-  background-color: #eaeaea;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  cursor: pointer;
+.chart-title {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.combined-chart {
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .chart-row {
   display: flex;
   justify-content: space-evenly;
   align-items: flex-start;
-  margin-top: 50px; /* 배너와 파이 차트 사이의 간격 */
-  margin-bottom: 40px; /* 파이 차트와 버튼 사이의 간격 */
+  margin-top: 50px;
+  margin-bottom: 40px;
 }
 
 .chart-item {
   width: 300px;
   height: 300px;
-  padding: 15px;
-  text-align: center;
+  padding: 20px;
 }
 
 .line-chart-container {
-  width: 90%;
-  margin: 30px auto;
+  width: 100%;
+  margin: 50px auto;
 }
 
-/* MonthSales.vue 스타일 코드 */
-.banner {
-  background-color: #002c5f; /* 배경색 */
-  color: white;
-  padding: 20px 40px; /* 좌우 패딩 조정 */
-  text-align: center;
-  border-radius: 15px;
-  font-size: 2em; /* 텍스트 크기 조정 */
-  margin: 10px;
-  width: 80%; /* 배너 너비를 더 길게 설정 */
-  max-width: 1200px; /* 최대 너비 설정 */
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
-  display: flex; /* Flexbox 사용 */
-  justify-content: space-between; /* 좌우 끝 정렬 */
-  align-items: center; /* 수직 중앙 정렬 */
+.line-chart-container .chart-card {
+  width: 1100px;
+  height: 600px; /* 카드 높이 */
 }
 
-.banner-text {
-  font-size: 1.8em; /* "월 총 생산량" 텍스트 크기 */
+.button-group-inside-card {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
 }
 
-.banner-number {
-  font-size: 1.8em; /* 숫자 텍스트 크기 */
-  font-weight: bold; /* 강조 */
+.button-group-inside-card button {
+  padding: 5px 10px;
+  margin: 0 2px;
+  font-size: 1em;
+  background-color: #eaeaea;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>

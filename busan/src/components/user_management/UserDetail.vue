@@ -1,31 +1,27 @@
 <template>
-  <div>
-    <h1>UserDetail.vue</h1>
-  </div>
-  <div class="user-detail">
-    <!-- 상단 네비게이션 바 -->
-    <h2>개인정보</h2>
-    <nav class="top-nav">
-      <router-link
-        :to="`/user-management/user-detail/${$route.params.userId}`"
-        active-class="active-link"
-      >개인정보</router-link>
-      <router-link
-        to="/user-management/group-list"
-        active-class="active-link"
-      >권한 관리</router-link>
-    </nav>
+  <div class="user-detail card">
+    <h1>개인정보</h1>
+    <hr class="divider"/>
 
     <div v-if="user">
-      <p><strong>이름:</strong> {{ user.name }}</p>
-      <p><strong>사번:</strong> {{ user.employeeNo }}</p>
+      <div class="user-info-inline">
+        <p><strong>이름:</strong> {{ user.name }}</p>
+        <p><strong>사번:</strong> {{ user.employeeNo }}</p>
+      </div>
 
-      <!-- 권한 체크박스 -->
-      <p><strong>권한:</strong>
-        <label><input type="checkbox" v-model="userRoles" value="경영진" /> 경영진</label>
-        <label><input type="checkbox" v-model="userRoles" value="엔지니어" /> 엔지니어</label>
-        <label><input type="checkbox" v-model="userRoles" value="모델관리자" /> 모델 관리자</label>
-      </p>
+      <div v-if="availableRoles.length">
+        <p class="roles-inline"><strong>권한:</strong>
+          <span class="role-radio">
+            <label v-for="role in availableRoles" :key="role">
+              <!-- 라디오 버튼으로 변경하여 한 가지 권한만 선택 가능 -->
+              <input type="radio" v-model="userRole" :value="role" /> {{ role }}
+            </label>
+          </span>
+        </p>
+      </div>
+      <div v-else>
+        <p>권한 목록을 불러오는 중입니다...</p>
+      </div>
     </div>
     <div v-else>
       <p>사용자 정보를 가져오는 중입니다...</p>
@@ -39,34 +35,61 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
       user: null,
-      userRoles: []  // 체크된 권한을 저장할 배열
+      userRole: '', // 하나의 선택된 권한을 저장할 변수
+      availableRoles: [] // 전체 권한 목록
     };
   },
-  created() {
+  async created() {
     const userId = this.$route.params.userId;
-    this.fetchUser(userId);
+    await this.fetchRoles(); // 권한 목록을 먼저 불러오고
+    await this.fetchUser(userId); // 사용자 정보를 불러와 권한 초기화
   },
   methods: {
-    fetchUser(userId) {
-      const users = [
-        { id: 1, name: '한수현', employeeNo: 1, position: '경영진', lastLogin: '2024-10-12', roles: ['경영진'] },
-        { id: 2, name: '서희림', employeeNo: 2, position: '엔지니어', lastLogin: '2024-10-13', roles: ['엔지니어'] },
-        { id: 3, name: '이규섭', employeeNo: 3, position: '엔지니어', lastLogin: '2024-10-14', roles: ['엔지니어'] },
-        { id: 4, name: '김세진', employeeNo: 4, position: '모델관리자', lastLogin: '2024-10-15', roles: ['모델관리자'] }
-      ];
-      this.user = users.find(user => user.id === parseInt(userId));
-      this.userRoles = this.user.roles;  // 기존 권한을 체크박스에 반영
+    async fetchUser(userId) {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/user-management/user-detail/${userId}`);
+        this.user = response.data;
+        // 서버에서 가져온 권한을 설정 (단일 권한만 선택할 수 있도록)
+        this.userRole = this.user.position || ''; // 기존 권한을 userRole에 설정
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        this.user = null;
+      }
+    },
+    async fetchRoles() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/user-management/group-list');
+        if (response.data && Array.isArray(response.data.user_groups)) {
+          this.availableRoles = response.data.user_groups.map(group => group[1]);
+        } else {
+          console.error("Invalid roles data structure:", response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch roles:", error);
+      }
     },
     goBack() {
-      this.$router.push('/user-management/user-list');
+      this.$router.push('/user-management');
     },
-    saveUser() {
-      console.log("저장된 사용자 권한:", this.userRoles);
-      alert("사용자 권한이 저장되었습니다!");
+    async saveUser() {
+      try {
+        const updatedUser = {
+          id: this.user.employeeNo,
+          position: this.userRole // 선택된 단일 권한을 서버로 전송
+        };
+        await axios.put(`http://127.0.0.1:8000/user-management/user-detail/${this.user.employeeNo}`, updatedUser);
+        alert("사용자 권한이 성공적으로 저장되었습니다!");
+        this.$router.push('/user-management');
+      } catch (error) {
+        console.error("Failed to save user data:", error);
+        alert("사용자 권한 저장에 실패했습니다.");
+      }
     }
   }
 };
@@ -74,62 +97,86 @@ export default {
 
 <style scoped>
 .user-detail {
-  font-size: 1.4rem;
-  padding: 3rem;
-  background-color: #ffffff;
+  max-width: 600px;
+  min-height: 250px;
+  margin: 80px auto;
+  padding: 2rem;
   border: 1px solid #ddd;
   border-radius: 8px;
-  width: 100%;  /* 전체 너비로 확장 */
-  max-width: 900px;  /* 최대 너비를 900px로 확장 */
-  height: auto;  /* 자동으로 높이 설정 */
-  min-height: 600px;  /* 최소 높이를 설정하여 흰색 배경이 더 커지게 */
-  margin: 3rem auto;  /* 화면에서 중앙에 위치 */
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);  /* 박스 그림자를 추가하여 더 입체적으로 보이게 */
+  background-color: #f5f5f5;
+  text-align: center;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
 }
 
-.top-nav {
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.user-info-inline {
   display: flex;
-  justify-content: flex-start;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 1rem;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 1rem;
 }
 
-.top-nav a {
-  margin-right: 2rem;
-  text-decoration: none;
-  color: #3f51b5;
-  font-weight: bold;
+p {
+  font-size: 1.2rem;
 }
 
-.top-nav a.active-link {
-  color: #303f9f;
-  border-bottom: 2px solid #303f9f;
+.roles-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-p label {
-  margin-left: 1.5rem;
-  display: inline-block;
+.role-radio label {
+  margin-right: 15px;
 }
 
 .button-group {
-  margin-top: 2rem;
   display: flex;
-  justify-content: flex-start;
-  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+  gap: 5px;
 }
 
-button {
-  padding: 0.75rem 2rem;
+.back-button{
+  padding: 0.75rem 1.5rem;
   font-size: 1.2rem;
-  background-color: #002c5f;
-  color: white;
+  background-color: #d0d1d1;
+  color: black;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #001f4f;
+.save-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  background-color: #79c77c;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #9b9b9b;
+}
+
+.save-button:hover {
+  background-color: #65bd66;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 2rem 0;
 }
 </style>
