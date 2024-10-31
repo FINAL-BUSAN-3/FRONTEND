@@ -1,44 +1,55 @@
 <template>
-  <div>
-    <h1>ModelApply.vue</h1>
-  </div>
-  <div class="model-apply">
-    <h2>모델 배포 신청</h2>
-    <p>모델을 배포하시겠습니까?</p>
-    <button @click="applyDeployment">배포하기</button>
-  </div>
+  <div class="model-apply"></div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
-  name: 'ModelApply',
+  name: "ModelApply",
+  props: {
+    modelData: Object,
+    modelFile: File,
+  },
+  async mounted() {
+    await this.sendToFastAPI();
+  },
   methods: {
-    applyDeployment() {
-      // 배포 요청 처리 로직을 추가합니다.
-      alert('모델이 성공적으로 배포되었습니다!');
+    async sendToFastAPI() {
+      const formData = new FormData();
+
+      formData.append("model_name", this.modelData.model_name);
+      formData.append("model_version", this.modelData.model_version);
+      formData.append("python_version", this.modelData.python_version);
+      formData.append("library", this.modelData.library);
+      formData.append("deployment_date", this.modelData.deployment_date);
+      formData.append("model_type", this.modelData.model_type);
+      formData.append("loss", this.modelData.loss);
+      formData.append("accuracy", this.modelData.accuracy);
+
+      if (this.modelFile) {
+        formData.append("file", this.modelFile);
+      }
+
+      try {
+        const response = await axios.post("http://localhost:8000/model-deployment/model-apply", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (response.status === 200) {
+          this.$emit("deploy-success");
+        } else {
+          this.$emit("deploy-failure");
+        }
+      } catch (error) {
+        console.error("배포 중 오류:", error);
+        this.$emit("deploy-failure");
+      }
     },
   },
 };
 </script>
 
 <style scoped>
-.model-apply {
-  padding: 20px;
-  background-color: #2c2f33;
-  color: #ffffff;
-  text-align: center;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-button:hover {
-  background-color: #45a049;
-}
+/* 스타일 정의 */
 </style>
