@@ -16,8 +16,8 @@
         <div class="model-section">
           <label for="model-select">모델</label>
           <div class="model-tabs">
-            <button :class="{ active: isPreviousModel }" @click="selectPreviousModel">이전 모델</button>
-            <button :class="{ active: !isPreviousModel }" @click="selectNewModel">신규 모델</button>
+              <button class="tab" :class="{ active: isPreviousModel }" @click="selectPreviousModel">이전 모델</button>
+              <button class="tab" :class="{ active: !isPreviousModel }" @click="selectNewModel">신규 모델</button>
           </div>
 
           <div v-if="isPreviousModel">
@@ -44,23 +44,23 @@
             <img src="@/assets/model_icon_black.png" alt="모델 아이콘" />
           </div>
           <div class="model-details">
-            <p>* 모델명: 
+            <p>* 모델명:
               <span v-if="isPreviousModel">{{ selectedModelInfo.model_name || '' }}</span>
               <input v-else v-model="newModelInfo.model_name" placeholder="모델명 입력" />
             </p>
-            <p>* 모델 버전: 
+            <p>* 모델 버전:
               <span v-if="isPreviousModel">{{ selectedModelInfo.model_version || '' }}</span>
               <input v-else v-model="newModelInfo.model_version" placeholder="모델 버전 입력" />
             </p>
-            <p>* 파이썬 버전: 
+            <p>* 파이썬 버전:
               <span v-if="isPreviousModel">{{ selectedModelInfo.python_version || '' }}</span>
               <input v-else v-model="newModelInfo.python_version" placeholder="파이썬 버전 입력" />
             </p>
-            <p>* 라이브러리: 
+            <p>* 라이브러리:
               <span v-if="isPreviousModel">{{ selectedModelInfo.library || '' }}</span>
               <input v-else v-model="newModelInfo.library" placeholder="라이브러리 입력" />
             </p>
-            <p>* 모델 종류: 
+            <p>* 모델 종류:
               <span v-if="isPreviousModel">{{ selectedModelInfo.model_type || '' }}</span>
               <input v-else v-model="newModelInfo.model_type" placeholder="모델 종류 입력" />
             </p>
@@ -189,11 +189,11 @@
       <button class="deploy-button" @click="sendToModelApply">배포</button>
     </div>
 
-    <ModelApply 
-      v-if="sendModelApply" 
-      :modelData="displayModelInfo" 
-      :modelFile="file" 
-      @deploy-success="showPopup('배포 성공!')" 
+    <ModelApply
+      v-if="sendModelApply"
+      :modelData="displayModelInfo"
+      :modelFile="file"
+      @deploy-success="showPopup('배포 성공!')"
       @deploy-failure="showPopup('배포 실패')"
     />
   </div>
@@ -229,7 +229,7 @@ export default {
         accuracy: "",
       },
       displayModelInfo: {},
-      activeModelInfo: {}, 
+      activeModelInfo: {},
       isPreviousModel: true,
       file: null,
     };
@@ -322,86 +322,158 @@ export default {
 <style scoped>
 .model-deployment {
   padding: 20px;
-  background-color: #2c2f33;
-  color: #ffffff;
+  background-color: transparent; /* 배경을 투명하게 */
+  color: #000000; /* 텍스트 색상을 검정으로 */
   width: 100%;
   height: 100vh;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; /* 수직 중앙 정렬 */
 }
 
 .selection-container {
-  width: 100%;
+  width: 100%; /* 컨테이너 너비를 100%로 설정 */
+  max-width: 1100px; /* 최대 너비 설정 */
+  padding: 10px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 20px; /* 각 요소 간격 조정 */
+  color: #000000; /* 텍스트 색상을 검정으로 */
+  background-color: transparent; /* 배경 투명 */
 }
 
 .process-section,
 .model-section {
-  width: 100%;
-  margin-bottom: 20px;
+  width: 100%; /* 각 섹션 너비 100% */
+  font-size: 1.2em; /* 기본 글씨 크기 */
+  color: #000000; /* 섹션 내 텍스트 색상 검정 */
+}
+
+/* 공정과 모델 텍스트(label) 설정 */
+.process-section label,
+.model-section label {
+  display: block; /* 블록 요소로 설정하여 줄바꿈 */
+  font-size: 1.5em; /* 글씨 크기 증가 */
+  font-weight: bold; /* 글씨를 진하게 */
+  margin-bottom: 5px; /* 드롭다운과의 간격 */
+}
+
+.process-section select,
+.model-section select {
+  width: 100vw; /* 드롭다운 너비를 화면 전체로 설정 */
+  max-width: 100%; /* 최대 너비를 부모 요소에 맞추기 */
+  padding: 10px;
+  font-size: 1em; /* 드롭다운 글씨 크기 */
+  background-color: transparent; /* 드롭다운 배경 투명 */
+  color: #000000; /* 드롭다운 텍스트 색상 검정 */
+  border: 2px solid grey; /* 테두리 설정 */
+  border-radius: 4px; /* 둥근 모서리 */
+  appearance: none; /* 기본 화살표 제거 */
+  margin-top: 10px; /* 드롭다운과 버튼 간격 추가 */
 }
 
 .model-tabs {
-  display: flex;
-  gap: 10px;
+  display: flex; /* 가로로 나열 */
+  gap: 0px; /* 버튼 간격 조정 */
+  justify-content: flex-start; /* 버튼들을 왼쪽 정렬 */
 }
 
-.model-tabs button {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
+/* 이전 모델, 신규 모델 탭 스타일 */
+.model-tabs .tab {
+  background-color: #f0f0f0; /* 버튼 배경색 흰색 */
+  color: #000000; /* 버튼 텍스트 색상 검정 */
+  padding: 10px 15px; /* 버튼 패딩 (위아래 20px, 좌우 40px으로 증가) */
+  font-size: 1em; /* 버튼 텍스트 크기 */
+  border: 2px solid #ccc; /* 테두리 설정 */
+  border-radius: 8px; /* 둥근 모서리 */
+  cursor: pointer; /* 커서 변경 */
+  flex-grow: 1; /* 버튼이 동일한 너비로 늘어남 */
+  text-align: left; /* 텍스트 왼쪽 정렬 */
+  font-weight: bold; /* 텍스트를 진하게 */
+  margin-right: 5px; /* 오른쪽 간격 추가 */
+  flex-basis: 10%; /* 버튼의 기본 너비를 10%로 설정하여 줄임 */
+  width: 10px; /* 버튼 너비를 10px로 고정 */
 }
 
-.model-tabs button.active {
-  background-color: #ff4081;
+.model-tabs .tab.active {
+  background-color: white; /* 활성 탭 배경색 */
+  color: #000000; /* 텍스트 색상 */
+}
+
+/* 마지막 버튼의 오른쪽 간격 제거 */
+.model-tabs .tab:last-child {
+  margin-right: 900px;
 }
 
 .file-upload {
-  display: flex;
-  align-items: center;
+  display: flex; /* 가로로 나열 */
+  align-items: center; /* 수직 중앙 정렬 */
 }
 
 .clear-button {
-  background-color: #ff0000;
-  color: #ffffff;
-  border: none;
-  padding: 5px;
-  cursor: pointer;
-  margin-left: 10px;
+  background-color: #ff0000; /* 삭제 버튼 배경색 빨간색 */
+  color: #ffffff; /* 삭제 버튼 텍스트 색상 흰색 */
+  border: none; /* 테두리 없음 */
+  padding: 8px; /* 패딩 설정 */
+  cursor: pointer; /* 커서 변경 */
+  margin-left: 10px; /* 간격 설정 */
 }
 
-.info-container {
+.combined-info-container {
+  width: 100%; /* 컨테이너 너비 100% */
+  max-width: 1200px; /* 최대 너비 설정 */
+  padding: 20px; /* 패딩 설정 */
+  display: flex; /* 가로로 나열 */
+  flex-direction: row; /* 가로 정렬 */
+  justify-content: space-between; /* 공간을 균등하게 분배 */
+  gap: 30px; /* 요소 간격 조정 */
+  font-size: 1.1em; /* 기본 글씨 크기 */
+  margin-top: 20px; /* 위쪽 마진 */
+  color: #000000; /* 텍스트 색상 검정 */
+  background-color: transparent; /* 배경 투명 */
+}
+
+.model-info {
+  flex: 1; /* 남은 공간을 채움 */
   display: flex;
-  justify-content: space-between;
-  width: 100%;
-  gap: 20px;
+  flex-direction: column; /* 세로 정렬 */
+  align-items: flex-start; /* 왼쪽 정렬 */
+  gap: 8px; /* 간격 조정 */
 }
 
-.info-table {
-  flex: 1;
+.model-details p {
+  margin: 0; /* 기본 여백 제거 */
 }
 
 .performance-table {
-  width: 100%;
-  border-collapse: collapse;
+  flex: 1; /* 남은 공간을 채움 */
+  width: 100%; /* 너비 100% */
+  border-collapse: collapse; /* 테두리 합치기 */
+  color: #000000; /* 텍스트 색상 검정 */
 }
 
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
+.performance-table th,
+.performance-table td {
+  padding: 12px; /* 패딩 설정 */
+  border: 1px solid #ccc; /* 테두리 색상 회색 */
+  font-size: 1.1em; /* 기본 글씨 크기 */
+  text-align: center; /* 텍스트 가운데 정렬 */
 }
 
-.deploy-button {
-  margin-top: 20px;
-  background-color: #ff4081;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
+.upload-button {
+  margin-top: 20px; /* 위쪽 마진 */
+  background-color: #ff4081; /* 업로드 버튼 배경색 */
+  color: white; /* 텍스트 색상 흰색 */
+  padding: 12px 24px; /* 패딩 설정 */
+  font-size: 1.2em; /* 버튼 텍스트 크기 */
+  border-radius: 5px; /* 둥근 모서리 */
+  border: none; /* 테두리 없음 */
+  cursor: pointer; /* 커서 변경 */
+}
+
+.upload-button:hover {
+  background-color: #ff5c8a; /* 호버 시 배경색 변경 */
 }
 </style>
