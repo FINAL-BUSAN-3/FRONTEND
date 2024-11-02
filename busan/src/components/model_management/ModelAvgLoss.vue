@@ -15,7 +15,7 @@ export default {
   methods: {
     async fetchModelAvgLoss() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/model-management/model-avg-loss');
+        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-management/model-avg-loss');
         this.model_loss = response.data.models;
         this.$emit('update:modelLoss', this.model_loss); // 부모 컴포넌트로 데이터 전달
       } catch (error) {
