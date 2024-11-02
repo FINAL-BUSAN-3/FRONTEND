@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/social';
+const API_BASE_URL = 'http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/social';
 
 // 소셜 분석 관련 API 호출 함수
 export const fetchKeyWord = () => api.get('${API_BASE_URL}/keyword');

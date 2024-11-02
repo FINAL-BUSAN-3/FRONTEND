@@ -32,7 +32,7 @@ export default {
       }
 
       try {
-        const response = await axios.post("http://localhost:8000/model-deployment/model-apply", formData, {
+        const response = await axios.post("http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-deployment/model-apply", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/management';
+const API_BASE_URL = 'http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management';
 
 // 경영지표 관련 API 호출 함수
 export const fetchStockChart = () => api.get('${API_BASE_URL}/stock');
