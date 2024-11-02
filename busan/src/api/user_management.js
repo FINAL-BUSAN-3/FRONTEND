@@ -25,7 +25,7 @@ export const fetchUserDetail = () => api.get('${USER_API_BASE_URL}/user-detail')
 export const fetchUserSave = () => api.get('${USER_API_BASE_URL}/user-save');
 
 //export const fetchUserDelete = () => api.get('${USER_API_BASE_URL}/user-delete');
-export const fetchUserDelete = (employeeNo => api.delete('${USER_API_BASE_URL}/user-delete/${employeeNo}');
+export const fetchUserDelete = (employeeNo) => api.delete('${USER_API_BASE_URL}/user-delete/${employeeNo}');
 
 export const fetchGroupSearch = () => api.get('${USER_API_BASE_URL}/group-search');
 
