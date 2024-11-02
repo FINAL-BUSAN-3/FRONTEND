@@ -31,9 +31,7 @@ pipeline {
 					
 
 					sh """
-                    ssh -i ${pemPath} -T ${localUser}@${localHost} <<EOF
-                    pm2 delete frontend
-                    EOF
+                    ssh -i ${pemPath} ${localUser}@${localHost} "pm2 delete frontend"
                     """
                     sh 'echo "[WEB] SERVER DOWN"'
 
@@ -50,10 +48,7 @@ pipeline {
                     def pemPath = '/var/jenkins_home/busan.pem'
 
 					sh """
-                    ssh -i ${pemPath} -T ${localUser}@${localHost} <<EOF
-                    cd /home/ubuntu/FRONTEND/busan
-					pm2 start npm --name frontend -- run serve -- --port 3000
-					EOF
+                    ssh -i ${pemPath} ${localUser}@${localHost} "cd /home/ubuntu/FRONTEND/busan && pm2 start npm --name frontend -- run serve -- --port 3000"
                     """
                     sh 'echo "[WEB] SERVER ON"'
 					slackSend(channel: '#deployment-alert', color: '#00FF7F' , message: "[WEB] SERVER ON : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
