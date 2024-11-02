@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/engineering';
+const API_BASE_URL = 'http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/engineering';
 
 // 엔지니어링 지표 관련 API 호출 함수
 export const fetchRealtimePressSelect = () => api.get('${API_BASE_URL}/realtime-press/select');

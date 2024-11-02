@@ -20,7 +20,7 @@ export default {
   methods: {
     async fetchActiveModelInfo() {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/model-deployment/model-detail");
+        const response = await axios.get("http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-deployment/model-detail");
         this.activeModelInfo = response.data;
         this.$emit("update:activeModelInfo", this.activeModelInfo); // 부모 컴포넌트로 전달
       } catch (error) {

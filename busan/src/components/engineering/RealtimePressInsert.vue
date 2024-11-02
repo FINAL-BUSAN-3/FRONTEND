@@ -47,7 +47,7 @@ export default {
   methods: {
     async fetchRealtimePressInsert() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/engineering/realtime-press/insert');
+        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/engineering/realtime-press/insert');
         this.press_raw_data = response.data.press_raw_data; // 데이터를 press_raw_data에 저장
         this.$emit('update:press_raw_data', this.press_raw_data); // 부모 컴포넌트에 데이터 전달
       } catch (error) {

@@ -53,7 +53,7 @@ export default {
   methods: {
     async fetchUser(userId) {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/user-management/user-detail/${userId}`);
+        const response = await axios.get(`http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/user-detail/${userId}`);
         this.user = response.data;
         // 서버에서 가져온 권한을 설정 (단일 권한만 선택할 수 있도록)
         this.userRole = this.user.position || ''; // 기존 권한을 userRole에 설정
@@ -64,7 +64,7 @@ export default {
     },
     async fetchRoles() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/user-management/group-list');
+        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/group-list');
         if (response.data && Array.isArray(response.data.user_groups)) {
           this.availableRoles = response.data.user_groups.map(group => group[1]);
         } else {
@@ -83,7 +83,7 @@ export default {
           id: this.user.employeeNo,
           position: this.userRole // 선택된 단일 권한을 서버로 전송
         };
-        await axios.put(`http://127.0.0.1:8000/user-management/user-detail/${this.user.employeeNo}`, updatedUser);
+        await axios.put(`http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/user-detail/${this.user.employeeNo}`, updatedUser);
         alert("사용자 권한이 성공적으로 저장되었습니다!");
         this.$router.push('/user-management');
       } catch (error) {
