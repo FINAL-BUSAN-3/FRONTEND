@@ -31,7 +31,7 @@ pipeline {
 					
 
 					sh """
-                    ssh -i ${pemPath} ${localUser}@${localHost} "pm2 delete frontend"
+                    ssh -i ${pemPath} ${localUser}@${localHost} "pm2 delete frontend || echo '0'"
                     """
                     sh 'echo "[WEB] SERVER DOWN"'
 
