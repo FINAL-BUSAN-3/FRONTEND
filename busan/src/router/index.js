@@ -1,73 +1,45 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HelloWorld from '../components/HelloWorld.vue';  // '../'로 경로를 수정
-import TestPage from '../components/TestPage.vue';      // '../'로 경로를 수정
-import ManagementPage from '../views/ManagementPage.vue';         // 경영지표 관련 페이지
-import EngineeringPage from '../views/EngineeringPage.vue';       // 엔지니어링 지표 관련 페이지
-import EngineeringPressPage from '../views/EngineeringPressPage.vue';       // 엔지니어링 지표 관련 페이지
-import EngineeringWeldingPage from '../views/EngineeringWeldingPage.vue';       // 엔지니어링 지표 관련 페이지
+//import HelloWorld from '../components/HelloWorld.vue';
+//import TestPage from '../components/TestPage.vue';
 
-import ModelManagementPage from '../views/ModelManagementPage.vue'; // 모델 관리 관련 페이지
-import ModelDeploymentPage from '../views/ModelDeploymentPage.vue'; // 모델 배포 관련 페이지
-import SocialAnalysisPage from '../views/SocialAnalysisPage.vue';   // 소셜 분석 관련 페이지
-import UserManagementPage from '../views/UserManagementPage.vue';   // 사용자 관리 관련 페이지
+// 각 기능별 라우트 파일 불러오기
+import engineeringRoutes from './engineeringRoutes';
+import managementRoutes from './managementRoutes';
+import modelManagementRoutes from './modelManagementRoutes';
+import modelDeploymentRoutes from './modelDeploymentRoutes';
+import socialAnalysisRoutes from './socialAnalysisRoutes';
+import userInfoRoutes from './userInfoRoutes';
+import userLogoutRoutes from './userLogoutRoutes';
+import userManagementRoutes from './userManagementRoutes';
 
+import Login from '@/views/LoginPage.vue'  // Login.vue가 위치한 경로를 정확히 입력
+
+// 기본 라우트 + 그룹별 라우트 병합
 const routes = [
+
   {
     path: '/',
-    name: 'HelloWorld',
-    component: HelloWorld,
+    name: 'Login',
+    component: Login
   },
-  {
-    path: '/test',
-    name: 'TestPage',
-    component: TestPage,
-  },
-  {
-    path: '/management',
-    name: 'Management',
-    component: ManagementPage,
-  },
-  {
-    path: '/engineering',
-    name: 'Engineering',
-    component: EngineeringPage,
-  },
-  {
-    path: '/engineering/press',
-    name: 'EngineeringPress',
-    component: EngineeringPressPage,
-  },
-  {
-    path: '/engineering/welding',
-    name: 'EngineeringWelding',
-    component: EngineeringWeldingPage,
-  },
-  {
-    path: '/model-management',
-    name: 'ModelManagement',
-    component: ModelManagementPage,
-  },
-  {
-    path: '/model-deployment',
-    name: 'ModelDeployment',
-    component: ModelDeploymentPage,
-  },
-  {
-    path: '/social',
-    name: 'SocialAnalysis',
-    component: SocialAnalysisPage,
-  },
-  {
-    path: '/user-management',
-    name: 'UserManagement',
-    component: UserManagementPage,
-  },
-  // 추가 라우트는 아래에 정의할 수 있습니다.
-  // 예: {
-  //   path: '/management/stock',
-  //   name: 'Stock',
-  //   component: Stock, // 해당 컴포넌트를 가져와야 합니다.
-  // },
+//  {
+//    path: '/',
+//    name: 'HelloWorld',
+//    component: HelloWorld,
+//  },
+//  {
+//    path: '/test',
+//    name: 'TestPage',
+//    component: TestPage,
+//  },
+  ...engineeringRoutes,
+  ...managementRoutes,
+  ...modelManagementRoutes,
+  ...modelDeploymentRoutes,
+  ...socialAnalysisRoutes,
+  ...userInfoRoutes,
+  ...userLogoutRoutes,
+  ...userManagementRoutes,
 ];
 
 const router = createRouter({

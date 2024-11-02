@@ -1,1 +1,5 @@
-// 일단 없는 걸로
+<template>
+  <div>
+    <h1>UserSearch.vue</h1>
+  </div>
+</template>
