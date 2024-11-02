@@ -1,6 +1,4 @@
-<template>
-{{ model_accuracy }}
-</template>
+
 <script>
 import axios from 'axios';
 
@@ -18,7 +16,10 @@ export default {
     async fetchModelAvgAccuracy() {
       try {
         const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-management/model-avg-accuracy');
-        this.model_accuracy = response.data.models; // 모델 데이터를 model_accuracy에 저장
+
+        this.model_accuracy = response.data.models;
+        this.$emit('update:modelAccuracy', this.model_accuracy); // 데이터 업데이트 이벤트 발생
+
       } catch (error) {
         console.error('평균 정확도 데이터를 불러오는 데 실패했습니다:', error);
       }
@@ -26,6 +27,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .performance-table {
