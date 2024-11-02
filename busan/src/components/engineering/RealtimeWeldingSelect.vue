@@ -35,7 +35,7 @@ export default {
   methods: {
     async fetchPrediction() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/engineering/realtime-welding/select');
+        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/engineering/realtime-welding/select');
         this.predictionData = response.data.prediction; // 예측값을 predictionData에 저장
         this.lastUpdate = new Date().toLocaleTimeString(); // 마지막 업데이트 시간 저장
         console.log('Prediction updated:', this.predictionData); // 데이터 확인용 로그

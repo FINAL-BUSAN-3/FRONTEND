@@ -43,8 +43,8 @@ export default {
 
         try {
             const [hyundaiResponse, kiaResponse] = await Promise.all([
-                axios.get('http://127.0.0.1:8000/stock-history/005380'),
-                axios.get('http://127.0.0.1:8000/stock-history/000270')
+                axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/stock-history/005380'),
+                axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/stock-history/000270')
             ]);
 
             const hyundaiData = hyundaiResponse.data;

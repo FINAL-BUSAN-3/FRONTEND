@@ -45,7 +45,7 @@ export default {
   methods: {
     async fetchRoles() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/user-management/group-list');
+        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/group-list');
         this.availableRoles = response.data.user_groups.map(group => group[1]);
       } catch (error) {
         console.error("Failed to fetch roles:", error);
@@ -71,7 +71,7 @@ export default {
       };
 
       try {
-        const response = await axios.post('http://127.0.0.1:8000/user-management/user-add', user);
+        const response = await axios.post('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/user-add', user);
         alert(response.data.message || "사용자가 성공적으로 추가되었습니다!");
         this.$router.push({ path: '/user-management' });
       } catch (error) {

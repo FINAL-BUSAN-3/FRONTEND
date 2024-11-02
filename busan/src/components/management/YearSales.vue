@@ -21,12 +21,12 @@ export default {
     async fetchSalesData() {
       try {
         // HD_sales 데이터 불러오기
-        const hdResponse = await axios.get('http://127.0.0.1:8000/sales/hd');
+        const hdResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/sales/hd');
         this.hdSalesData = hdResponse.data.map(item => item.count);
         this.salesLabels = hdResponse.data.map(item => item.year);
 
         // KIA_sales 데이터 불러오기
-        const kiaResponse = await axios.get('http://127.0.0.1:8000/sales/kia');
+        const kiaResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/sales/kia');
         this.kiaSalesData = kiaResponse.data.map(item => item.count);
 
         // 데이터 불러온 후 차트 생성

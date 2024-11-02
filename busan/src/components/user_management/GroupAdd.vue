@@ -34,7 +34,7 @@ export default {
       };
 
       try {
-        const response = await axios.post('http://127.0.0.1:8000/user-management/group-add', group);
+        const response = await axios.post('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/group-add', group);
         alert(response.data.message || "그룹이 성공적으로 추가되었습니다!");
         // 권한 추가 후 "권한 관리" 탭을 유지하기 위해 query 설정
         this.$router.push({ path: '/user-management', query: { tab: 'group' } });

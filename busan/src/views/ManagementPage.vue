@@ -92,11 +92,11 @@ export default {
   methods: {
     async fetchSalesData() {
       try {
-        const hdResponse = await axios.get('http://127.0.0.1:8000/management/sales/hd');
+        const hdResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/sales/hd');
         this.hdSalesData = hdResponse.data.map(item => item.count);
         this.salesLabels = hdResponse.data.map(item => item.year);
 
-        const kiaResponse = await axios.get('http://127.0.0.1:8000/management/sales/kia');
+        const kiaResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/sales/kia');
         this.kiaSalesData = kiaResponse.data.map(item => item.count);
 
         this.createMonthlyProductionChart();
@@ -106,15 +106,16 @@ export default {
     },
     async fetchStockData() {
       try {
-        const hyundaiResponse = await axios.get('http://127.0.0.1:8000/management/stock-history/005380');
-        const kiaResponse = await axios.get('http://127.0.0.1:8000/management/stock-history/000270');
+        const hyundaiResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/stock-history/005380');
+        const kiaResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/stock-history/000270');
 
         const hyundaiData = hyundaiResponse.data;
         const kiaData = kiaResponse.data;
 
-        this.stockLabels = hyundaiData.map(item => item.time);
-        this.hdStockData = hyundaiData.map(item => item.price);
-        this.kiaStockData = kiaData.map(item => item.price);
+        // 데이터 축적
+        this.stockLabels = [...this.stockLabels, ...hyundaiData.map(item => item.time)];
+        this.hdStockData = [...this.hdStockData, ...hyundaiData.map(item => item.price)];
+        this.kiaStockData = [...this.kiaStockData, ...kiaData.map(item => item.price)];
 
         this.createStockChart();
       } catch (error) {
@@ -193,13 +194,13 @@ export default {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            padding: 20 // 아이콘과 텍스트 사이 간격 조정
-          }
-        }
-      },
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20 // 아이콘과 텍스트 사이 간격 조정
+              }
+            }
+          },
           scales: {
             x: { title: { display: true, text: '시간' }},
             y: { title: { display: true, text: '가격 (₩)' }}
@@ -248,10 +249,11 @@ export default {
     this.renderCharts();
     this.fetchStockData();
     this.fetchSalesData();
-    setInterval(this.fetchStockData, 720000);
+    setInterval(this.fetchStockData, 6000); // 매 6초마다 주가 데이터 업데이트
   }
 };
 </script>
+
 
 <style scoped>
 .management-view {
