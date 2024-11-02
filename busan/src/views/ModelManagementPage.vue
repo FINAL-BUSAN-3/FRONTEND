@@ -100,7 +100,7 @@ export default {
     },
     async onModelChange() {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/model-management/model-info/${this.selectedModel}`);
+        const response = await axios.get(`http://ec2-54-198-145-116.compute-1.amazonaws.com:8000/model-management/model-info/${this.selectedModel}`);
         this.selectedModelInfo = response.data;
       } catch (error) {
         console.error("모델 정보 로드 실패:", error);
