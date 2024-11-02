@@ -89,7 +89,7 @@ export default {
   methods: {
     async fetchActiveModelInfo() {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/model-management/model-detail");
+        const response = await axios.get("http://ec2-54-198-145-116.compute-1.amazonaws.com:8000/model-management/model-detail");
         this.activeModelInfo = response.data;
       } catch (error) {
         console.error("현재 사용 중인 모델 정보를 불러오는데 실패했습니다:", error);
