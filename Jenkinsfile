@@ -31,7 +31,7 @@ pipeline {
 					
 
 					sh """
-                    ssh -i ${pemPath} ${localUser}@${localHost} -T <<EOF
+                    ssh -i ${pemPath} -T ${localUser}@${localHost} <<EOF
                     pm2 delete frontend
                     EOF
                     """
