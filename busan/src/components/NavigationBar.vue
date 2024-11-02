@@ -64,14 +64,14 @@ export default {
   },
   methods: {
     logout() {
-      fetch('http://localhost:8080/logout', {
+      fetch('http://ec2-18-215-52-54.compute-1.amazonaws.com:8080/logout', {
         method: 'POST',
         credentials: 'include'
       })
         .then(() => {
           // 로그아웃 시 로컬 스토리지에서 사용자 이름 제거
           localStorage.removeItem('username');
-          window.location.href = 'http://localhost:8080';
+          window.location.href = 'http://ec2-18-215-52-54.compute-1.amazonaws.com:8080';
         })
         .catch((error) => {
           console.error("로그아웃 에러:", error);
