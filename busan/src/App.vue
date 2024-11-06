@@ -41,7 +41,7 @@ export default {
   methods: {
     async fetchTest() {
       try {
-        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/test');
+        const response = await axios.get('http://localhost:8000/test');
         this.apiMessage = response.data.message;
       } catch (error) {
         console.error('Error fetching data:', error);

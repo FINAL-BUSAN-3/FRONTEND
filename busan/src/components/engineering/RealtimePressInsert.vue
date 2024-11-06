@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>RealtimePressInsert.vue</h1>
+    <p v-if="lastUpdate">Last update: {{ lastUpdate }}</p>
     <table>
       <thead>
         <tr>
@@ -37,7 +38,8 @@ export default {
   name: 'RealtimePressInsertComponents',
   data() {
     return {
-      press_raw_data: [] // FastAPI로부터 받아온 데이터를 저장할 배열
+      press_raw_data: [], // FastAPI로부터 받아온 데이터를 저장할 배열
+      lastUpdate: null // 마지막 업데이트 시간을 저장할 변수
     };
   },
   async created() {
@@ -47,11 +49,12 @@ export default {
   methods: {
     async fetchRealtimePressInsert() {
       try {
-        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/engineering/realtime-press/insert');
-        this.press_raw_data = response.data.press_raw_data; // 데이터를 press_raw_data에 저장
-        this.$emit('update:press_raw_data', this.press_raw_data); // 부모 컴포넌트에 데이터 전달
+        const response = await axios.get('http://localhost:8000/engineering/realtime-press/insert');
+        this.press_raw_data = response.data.press_data; // 데이터를 press_raw_data에 저장
+        this.lastUpdate = new Date().toLocaleTimeString(); // 마지막 업데이트 시간 저장
+        console.log('Press data updated:', this.press_raw_data); // 데이터 확인용 로그
       } catch (error) {
-        console.error('Failed to fetch press_raw_data:', error);
+        console.error('Failed to fetch press_data:', error);
       }
     }
   }

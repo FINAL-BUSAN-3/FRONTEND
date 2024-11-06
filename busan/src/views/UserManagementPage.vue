@@ -149,7 +149,7 @@ export default {
     },
     async fetchUserData() {
   try {
-    const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/user-list');
+    const response = await axios.get('http://localhost:8000/user-management/user-list');
     console.log("Fetched users:", response.data.employees);
 
     // lastLogin 필드에 날짜와 시간 포함하여 표시
@@ -163,7 +163,7 @@ export default {
     },
     async fetchGroupData() {
       try {
-        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/group-list');
+        const response = await axios.get('http://localhost:8000/user-management/group-list');
         console.log("Fetched groups:", response.data);
         this.groups = response.data.user_groups.map(group => ({
           id: group[0],
@@ -234,7 +234,7 @@ export default {
     },
     async deleteUser(employeeNo) {
       try {
-        const response = await axios.delete(`http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/user-delete/${employeeNo}`);
+        const response = await axios.delete(`http://localhost:8000/user-management/user-delete/${employeeNo}`);
         console.log(response.data.message || "사용자 삭제 성공");
       } catch (error) {
         console.error(`Failed to delete user ${employeeNo}:`, error);
@@ -243,7 +243,7 @@ export default {
     },
     async deleteGroup(groupId) {
       try {
-        const response = await axios.delete(`http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/group-delete/${groupId}`);
+        const response = await axios.delete(`http://localhost:8000/user-management/group-delete/${groupId}`);
         console.log(response.data.message || "그룹 삭제 성공");
       } catch (error) {
         console.error(`Failed to delete group ${groupId}:`, error);

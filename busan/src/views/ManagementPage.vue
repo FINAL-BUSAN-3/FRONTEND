@@ -92,11 +92,11 @@ export default {
   methods: {
     async fetchSalesData() {
       try {
-        const hdResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/sales/hd');
+        const hdResponse = await axios.get('http://localhost:8000/management/sales/hd');
         this.hdSalesData = hdResponse.data.map(item => item.count);
         this.salesLabels = hdResponse.data.map(item => item.year);
 
-        const kiaResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/sales/kia');
+        const kiaResponse = await axios.get('http://localhost:8000/management/sales/kia');
         this.kiaSalesData = kiaResponse.data.map(item => item.count);
 
         this.createMonthlyProductionChart();
@@ -106,8 +106,8 @@ export default {
     },
     async fetchStockData() {
       try {
-        const hyundaiResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/stock-history/005380');
-        const kiaResponse = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/management/stock-history/000270');
+        const hyundaiResponse = await axios.get('http://localhost:8000/management/stock-history/005380');
+        const kiaResponse = await axios.get('http://localhost:8000/management/stock-history/000270');
 
         const hyundaiData = hyundaiResponse.data;
         const kiaData = kiaResponse.data;

@@ -53,12 +53,12 @@ export default {
   methods: {
     async fetchRealtimeWeldingInsert() {
       try {
-        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/engineering/realtime-welding/insert');
-        this.welding_raw_data = response.data.welding_raw_data; // 데이터를 welding_raw_data에 저장
+        const response = await axios.get('http://localhost:8000/engineering/realtime-welding/insert');
+        this.welding_raw_data = response.data.welding_data; // 데이터를 welding_raw_data에 저장
         this.lastUpdate = new Date().toLocaleTimeString(); // 마지막 업데이트 시간 저장
         console.log('Welding data updated:', this.welding_raw_data); // 데이터 확인용 로그
       } catch (error) {
-        console.error('Failed to fetch welding_raw_data:', error);
+        console.error('Failed to fetch welding_data:', error);
       }
     }
   }

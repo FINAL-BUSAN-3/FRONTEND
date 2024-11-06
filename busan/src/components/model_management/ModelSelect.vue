@@ -14,7 +14,7 @@ export default {
   methods: {
     async fetchModelSelectForManagement() {
       try {
-        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-management/model-select');
+        const response = await axios.get('http://localhost:8000/model-management/model-select');
         this.models = response.data.models; // 모델 데이터를 models에 저장
         this.$emit('update:modelFileNames', this.models.map((model) => model.model_info_id)); // 부모 컴포넌트에 model_info_id 목록 전달
       } catch (error) {
@@ -23,7 +23,7 @@ export default {
     },
     async selectModelForManagement(model_info_id) {
       try {
-        const response = await axios.get(`http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-management/model-info/${model_info_id}`);
+        const response = await axios.get(`http://localhost:8000/model-management/model-info/${model_info_id}`);
         this.$emit('modelSelected', response.data); // 선택된 모델 정보를 부모 컴포넌트로 전달
       } catch (error) {
         console.error('Failed to fetch model info:', error);

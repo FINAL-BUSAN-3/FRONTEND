@@ -31,7 +31,7 @@ export default {
   methods: {
     async fetchUserList() {
       try {
-        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/user-list');
+        const response = await axios.get('http://localhost:8000/user-management/user-list');
         console.log("Fetched users:", response.data.employees);
         this.users = response.data.employees.map(user => ({
           ...user,

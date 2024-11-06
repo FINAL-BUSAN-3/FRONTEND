@@ -32,7 +32,7 @@ export default {
   methods: {
   async submitLogin() {
     try {
-      const response = await axios.post('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/', {
+      const response = await axios.post('http://localhost:8000/', {
         username: this.name,
         employee_no: this.employee_no,
       });

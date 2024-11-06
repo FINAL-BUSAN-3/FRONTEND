@@ -33,7 +33,7 @@ export default {
   methods: {
     async fetchGroupList() {
   try {
-    const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/user-management/group-list');
+    const response = await axios.get('http://localhost:8000/user-management/group-list');
     console.log("Fetched groups:", response.data); // 데이터 응답 구조를 확인합니다.
     // 데이터 필드 이름 맞추기
     this.groups = response.data.map(group => ({
