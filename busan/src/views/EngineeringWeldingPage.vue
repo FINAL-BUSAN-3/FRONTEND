@@ -1,6 +1,25 @@
 <template>
+  <!-- Smart Quality Management 화면 -->
+  <div class="quality-management-container">
+    <h1 class="header-title">Smart Quality Management</h1>
+    <div class="quality-details">
+      <p>제품명 : {{ latestItem ? latestItem.item_no : 'N/A' }}</p>
+      <p>시간 : {{ latestItem ? latestItem.working_time : 'N/A' }}</p>
+      <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : 'N/A' }}</p>
+    </div>
+  </div>
+
+  <!-- Realtime Welding Data and Prediction 화면 -->
   <div class="page-container">
     <h1 class="page-title">Realtime Welding Data and Prediction</h1>
+
+    <!-- 애니메이션 요소 -->
+    <div class="animation-container">
+      <img :src="beltImage" alt="Conveyor Belt" class="background-image" />
+      <img :src="facilityImage" alt="Equipment" class="overlay-image" />
+      <img v-if="showSpark" :src="sparkImage" alt="Welding Spark" class="overlay-spark" />
+      <img :src="carImage" alt="Car Part" class="car-part" :key="animationKey" />
+    </div>
 
     <!-- 통합 데이터 테이블 -->
     <section>
@@ -38,19 +57,11 @@
             <td>{{ item.welding_current_ka }}</td>
             <td>{{ item.weld_voltage_v }}</td>
             <td>{{ item.weld_time_ms }}</td>
-            <td v-if="index === 0">{{ predictionData }}</td>
+            <td>{{ item.prediction }}</td>
           </tr>
         </tbody>
       </table>
     </section>
-
-    <!-- 애니메이션 요소 -->
-    <div class="animation-container">
-      <img :src="beltImage" alt="Conveyor Belt" class="background-image" />
-      <img :src="facilityImage" alt="Equipment" class="overlay-image" />
-      <img v-if="showSpark" :src="sparkImage" alt="Welding Spark" class="overlay-spark" />
-      <img :src="carImage" alt="Car Part" class="car-part" :key="animationKey" />
-    </div>
 
     <!-- 컴포넌트 호출 -->
     <RealtimeWeldingInsertComponents ref="insertComponent" @data-updated="updateInsertData" />
@@ -90,6 +101,11 @@ export default {
       sparkImage
     };
   },
+  computed: {
+    latestItem() {
+      return this.welding_raw_data.length > 0 ? this.welding_raw_data[this.welding_raw_data.length - 1] : null;
+    }
+  },
   async mounted() {
     // INSERT 데이터는 5초마다 가져오고, 들어올 때 애니메이션 실행
     this.intervalInsert = setInterval(this.fetchInsertData, 5000);
@@ -105,17 +121,24 @@ export default {
       // 3초 후에 SELECT 데이터를 가져오도록 설정
       setTimeout(() => {
         this.fetchSelectData();
-      }, 3000);
+      }, 1000);
     },
     async fetchSelectData() {
       await this.$refs.selectComponent.fetchSelectData();  // SELECT 데이터 가져오기
     },
     updateInsertData({ welding_raw_data, lastUpdateInsert }) {
-      this.welding_raw_data = welding_raw_data;
+      // 기존 데이터에 새 데이터를 누적하여 추가
+      this.welding_raw_data.push(...welding_raw_data.map(item => ({
+        ...item,
+        prediction: null // 예측 데이터를 위해 빈 상태로 초기화
+      })));
       this.lastUpdateInsert = lastUpdateInsert;
     },
     updatePredictionData({ predictionData, lastUpdateSelect }) {
-      this.predictionData = predictionData;
+      // 마지막으로 추가된 데이터에 예측 데이터 추가
+      if (this.welding_raw_data.length > 0) {
+        this.welding_raw_data[this.welding_raw_data.length - 1].prediction = predictionData;
+      }
       this.lastUpdateSelect = lastUpdateSelect;
     },
     startAnimation() {
@@ -136,10 +159,35 @@ export default {
 </script>
 
 <style scoped>
+/* Smart Quality Management 스타일 */
+.quality-management-container {
+  background-color: #2D2D44;
+  color: #FFFFFF;
+  padding: 20px;
+  border: 1px solid #FFFFFF;
+  text-align: center;
+  max-width: 600px;
+  margin: auto;
+}
+
+.header-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.quality-details {
+  font-size: 18px;
+  line-height: 1.8;
+  text-align: left;
+  padding-left: 20px;
+}
+
+/* Realtime Welding Data and Prediction 스타일 */
 .page-container {
   background-color: #2E2E2E;
   color: #FFFFFF;
   padding: 20px;
+  margin-top: 20px;
 }
 
 .page-title, .section-title, .last-update {
@@ -150,6 +198,9 @@ export default {
   width: 100%;
   border-collapse: collapse;
   background-color: #2E2E2E;
+  overflow-y: auto;
+  max-height: 300px; /* 스크롤 추가 */
+  display: block;
 }
 
 .data-table th, .data-table td {
@@ -167,6 +218,7 @@ export default {
   color: #FFFFFF;
 }
 
+/* 애니메이션 스타일 */
 .animation-container {
   position: relative;
   width: 100%;
@@ -178,13 +230,11 @@ export default {
   overflow: hidden;
 }
 
-/* 컨베이어 벨트와 설비 이미지에 동일한 스타일 */
-.background-image {
+.background-image, .overlay-image {
   position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 1; /* belt 이미지 가장 아래 */
 }
 
 .car-part {
@@ -192,7 +242,7 @@ export default {
   width: 15%;
   top: 50%;
   transform: translateY(-50%) translateX(-150%);
-  z-index: 2; /* car 이미지 */
+  z-index: 2;
   animation: moveToEquipment 2s ease forwards, waitAtEquipment 1s 2s ease forwards, moveToEnd 1s 3s ease forwards;
 }
 
@@ -201,44 +251,22 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 3; /* spark 이미지 */
-  visibility: visible;
-  opacity: 1;
-}
-
-.overlay-image {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 4; /* facility 이미지 최상단 */
+  z-index: 3;
 }
 
 /* 애니메이션 단계 */
 @keyframes moveToEquipment {
-  0% {
-    transform: translateY(-50%) translateX(-150%);
-  }
-  100% {
-    transform: translateY(-50%) translateX(100%);
-  }
+  0% { transform: translateY(-50%) translateX(-150%); }
+  100% { transform: translateY(-50%) translateX(100%); }
 }
 
 @keyframes waitAtEquipment {
-  0% {
-    transform: translateY(-50%) translateX(100%);
-  }
-  100% {
-    transform: translateY(-50%) translateX(100%);
-  }
+  0% { transform: translateY(-50%) translateX(100%); }
+  100% { transform: translateY(-50%) translateX(100%); }
 }
 
 @keyframes moveToEnd {
-  0% {
-    transform: translateY(-50%) translateX(100%);
-  }
-  100% {
-    transform: translateY(-50%) translateX(250%);
-  }
+  0% { transform: translateY(-50%) translateX(100%); }
+  100% { transform: translateY(-50%) translateX(250%); }
 }
 </style>
