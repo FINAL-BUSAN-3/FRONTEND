@@ -1,12 +1,13 @@
 <template>
   <!-- Smart Quality Management 화면 -->
   <div class="quality-management-container">
-    <h1 class="header-title">Smart Quality Management</h1>
     <div class="quality-details">
+      <h1 class="header-title">Smart Quality Management</h1>
       <p>제품명 : {{ latestItem ? latestItem.item_no : 'N/A' }}</p>
       <p>시간 : {{ latestItem ? latestItem.working_time : 'N/A' }}</p>
-      <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : 'N/A' }}</p>
+      <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : '판정 중' }}</p>
     </div>
+    <img :src="carImage" alt="Car Part" class="quality-car-image" />
   </div>
 
   <!-- Realtime Welding Data and Prediction 화면 -->
@@ -161,13 +162,23 @@ export default {
 <style scoped>
 /* Smart Quality Management 스타일 */
 .quality-management-container {
-  background-color: #2D2D44;
+  background-color: #2E2E2E;
   color: #FFFFFF;
   padding: 20px;
   border: 1px solid #FFFFFF;
-  text-align: center;
-  max-width: 600px;
+  display: flex; /* 이미지와 텍스트가 나란히 배치되도록 설정 */
+  align-items: center;
+  justify-content: space-between; /* 텍스트와 이미지 사이 간격 확보 */
+  max-width: 100%;
   margin: auto;
+}
+
+.quality-details {
+  font-size: 18px;
+  line-height: 1.8;
+  text-align: left;
+  padding-left: 150px; /* 왼쪽 정렬 조정 */
+  flex: 1; /* 텍스트 부분이 남은 공간을 차지하도록 설정 */
 }
 
 .header-title {
@@ -175,11 +186,10 @@ export default {
   margin-bottom: 20px;
 }
 
-.quality-details {
-  font-size: 18px;
-  line-height: 1.8;
-  text-align: left;
-  padding-left: 20px;
+.quality-car-image {
+  width: 500px; /* 이미지 크기를 크게 조정 */
+  height: auto;
+  margin-left: 20px; /* 텍스트와 이미지 사이의 간격 설정 */
 }
 
 /* Realtime Welding Data and Prediction 스타일 */

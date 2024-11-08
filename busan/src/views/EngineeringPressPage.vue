@@ -15,10 +15,12 @@
 
     <!-- 애니메이션 요소 -->
     <div class="animation-container">
-      <img :src="beltImage" alt="Conveyor Belt" class="background-image" />
-      <img :src="facilityImage" alt="Equipment" class="overlay-image" />
-      <img v-if="showSpark" :src="sparkImage" alt="Welding Spark" class="overlay-spark" />
-      <img :src="carImage" alt="Car Part" class="car-part" :key="animationKey" />
+      <img :src="pressBackground" alt="Background" class="background-image overlay-position" />
+      <img :src="pressBelt" alt="Belt" class="belt-image overlay-position" />
+      <img :src="pressPlate" alt="Plate" class="plate-image animatePlate" />
+      <img :src="pressPart" alt="Part" class="part-image animatePart" />
+      <img :src="pressFixedFacility" alt="Fixed Facility" class="fixed-facility overlay-position" />
+      <img :src="pressMovedFacility" alt="Moved Facility" class="moved-facility overlay-position move-up-down" />
     </div>
 
     <!-- 통합 데이터 테이블 -->
@@ -43,7 +45,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in press_raw_data" :key="index">
+          <tr v-for="(item, index) in limitedPressData" :key="index">
             <td>{{ index + 1 }}</td>
             <td>{{ item.idx }}</td>
             <td>{{ item.machine_name }}</td>
@@ -66,119 +68,95 @@
 </template>
 
 <script>
+import pressBackground from '@/assets/images/press_background.png';
+import pressBelt from '@/assets/images/press_belt.png';
+import pressPlate from '@/assets/images/press_plate.png';
+import pressPart from '@/assets/images/press_part.png';
+import pressFixedFacility from '@/assets/images/press_fixed_facility.png';
+import pressMovedFacility from '@/assets/images/press_moved_facility.png';
 import RealtimePressInsertComponents from '@/components/engineering/RealtimePressInsert.vue';
 import RealtimePressSelect from '@/components/engineering/RealtimePressSelect.vue';
 
-// 이미지 파일 import
-import beltImage from '@/assets/images/welding_belt.png';
-import carImage from '@/assets/images/welding_car.png';
-import facilityImage from '@/assets/images/welding_facility.png';
-import sparkImage from '@/assets/images/welding_spark.png';
-
 export default {
-  name: 'RealtimeWPressgPage',
+  name: 'RealtimePressPage',
   components: {
     RealtimePressInsertComponents,
     RealtimePressSelect
   },
   data() {
     return {
+      pressBackground,
+      pressBelt,
+      pressPlate,
+      pressPart,
+      pressFixedFacility,
+      pressMovedFacility,
+      showPlate: false,
+      showPart: false,
       press_raw_data: [],
       lastUpdateInsert: null,
-      predictionData: null,
-      lastUpdateSelect: null,
-      intervalInsert: null,
-      animationKey: 0, // 애니메이션 강제 리셋을 위한 키값
-      showSpark: false, // spark 이미지 on/off 제어
-      // 이미지 경로 설정
-      beltImage,
-      carImage,
-      facilityImage,
-      sparkImage
+      lastUpdateSelect: null
     };
   },
   computed: {
     latestItem() {
       return this.press_raw_data.length > 0 ? this.press_raw_data[this.press_raw_data.length - 1] : null;
+    },
+    limitedPressData() {
+      const maxRows = 50;
+      return this.press_raw_data.slice(-maxRows);
     }
   },
-  async mounted() {
-    // INSERT 데이터는 5초마다 가져오고, 들어올 때 애니메이션 실행
+  mounted() {
+    this.startAnimation();
     this.intervalInsert = setInterval(this.fetchInsertData, 5000);
   },
   beforeUnmount() {
-    clearInterval(this.intervalInsert); // 컴포넌트 해제 시 INSERT 인터벌 제거
+    clearInterval(this.intervalInsert);
+    clearInterval(this.animationInterval);
   },
   methods: {
+    startAnimation() {
+      this.showPlate = true;
+      this.showPart = true;
+    },
     async fetchInsertData() {
-      await this.$refs.insertComponent.fetchInsertData();  // INSERT 데이터 가져오기
-      this.startAnimation();  // INSERT가 들어올 때 애니메이션 시작
-
-      // 3초 후에 SELECT 데이터를 가져오도록 설정
-      setTimeout(() => {
-        this.fetchSelectData();
-      }, 1000);
+      try {
+        await this.$refs.insertComponent.fetchInsertData();
+        this.lastUpdateInsert = new Date().toLocaleString();
+        setTimeout(() => {
+          this.fetchSelectData();
+        }, 1000);
+      } catch (error) {
+        console.error("Error fetching insert data:", error);
+      }
     },
     async fetchSelectData() {
-      await this.$refs.selectComponent.fetchSelectData();  // SELECT 데이터 가져오기
+      try {
+        await this.$refs.selectComponent.fetchSelectData();
+        this.lastUpdateSelect = new Date().toLocaleString();
+      } catch (error) {
+        console.error("Error fetching select data:", error);
+      }
     },
     updateInsertData({ press_raw_data, lastUpdateInsert }) {
-      // 기존 데이터에 새 데이터를 누적하여 추가
       this.press_raw_data.push(...press_raw_data.map(item => ({
         ...item,
-        prediction: null // 예측 데이터를 위해 빈 상태로 초기화
+        prediction: null
       })));
       this.lastUpdateInsert = lastUpdateInsert;
     },
     updatePredictionData({ predictionData, lastUpdateSelect }) {
-      // 마지막으로 추가된 데이터에 예측 데이터 추가
       if (this.press_raw_data.length > 0) {
         this.press_raw_data[this.press_raw_data.length - 1].prediction = predictionData;
       }
       this.lastUpdateSelect = lastUpdateSelect;
-    },
-    startAnimation() {
-      this.animationKey += 1; // key값을 변경하여 애니메이션 리셋
-
-      // 3초 후 spark 이미지 표시
-      setTimeout(() => {
-        this.showSpark = true;
-      }, 2200);
-
-      // 4초 후 spark 이미지 숨기기
-      setTimeout(() => {
-        this.showSpark = false;
-      }, 3000);
     }
   }
 };
 </script>
 
 <style scoped>
-/* Smart Quality Management 스타일 */
-.quality-management-container {
-  background-color: #2D2D44;
-  color: #FFFFFF;
-  padding: 20px;
-  border: 1px solid #FFFFFF;
-  text-align: center;
-  max-width: 600px;
-  margin: auto;
-}
-
-.header-title {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.quality-details {
-  font-size: 18px;
-  line-height: 1.8;
-  text-align: left;
-  padding-left: 20px;
-}
-
-/* Realtime Press Data and Prediction 스타일 */
 .page-container {
   background-color: #2E2E2E;
   color: #FFFFFF;
@@ -186,8 +164,73 @@ export default {
   margin-top: 20px;
 }
 
-.page-title, .section-title, .last-update {
-  color: #FFFFFF;
+.animation-container {
+  position: relative;
+  width: 100%;
+  height: 300px; /* 높이 확장 */
+  display: flex;
+  align-items: center;
+}
+
+/* 동일한 가로세로 크기 및 위치 통일 */
+.overlay-position {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.moved-facility {
+  animation: moveUpDown 5s infinite;
+  height: 80%; /* 세로 길이를 조정하고 싶다면 이 값을 변경 */
+}
+
+
+/* Plate 초기 위치 설정과 애니메이션 */
+.plate-image {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-70%) translateX(50%);
+}
+
+@keyframes movePlate {
+  0%, 20% { transform: translateY(-70%) translateX(50%); }
+  80% { transform: translateY(-70%) translateX(600%); }
+  100% { transform: translateY(-70%) translateX(600%); }
+}
+
+.animatePlate {
+  animation: movePlate 5s linear infinite;
+}
+
+/* Part 초기 위치 설정과 애니메이션 */
+.part-image {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-80%) translateX(590%);
+}
+
+@keyframes movePart {
+  0%, 20% { transform: translateY(-80%) translateX(430%); }
+  80% { transform: translateY(-80%) translateX(800%); }
+  100% { transform: translateY(-80%) translateX(800%); }
+}
+
+.animatePart {
+  animation: movePart 5s linear infinite;
+}
+
+/* Moved Facility 애니메이션 */
+@keyframes moveUpDown {
+  0% { transform: translateY(-65px); }
+  20% { transform: translateY(-150px); }
+  80% { transform: translateY(-150px); }
+  100% { transform: translateY(-65px); }
+}
+
+.move-up-down {
+  animation: moveUpDown 5s infinite;
 }
 
 .data-table {
@@ -195,7 +238,7 @@ export default {
   border-collapse: collapse;
   background-color: #2E2E2E;
   overflow-y: auto;
-  max-height: 300px; /* 스크롤 추가 */
+  max-height: 300px;
   display: block;
 }
 
@@ -212,57 +255,5 @@ export default {
 
 .data-table td {
   color: #FFFFFF;
-}
-
-/* 애니메이션 스타일 */
-.animation-container {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.background-image, .overlay-image {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.car-part {
-  position: absolute;
-  width: 15%;
-  top: 50%;
-  transform: translateY(-50%) translateX(-150%);
-  z-index: 2;
-  animation: moveToEquipment 2s ease forwards, waitAtEquipment 1s 2s ease forwards, moveToEnd 1s 3s ease forwards;
-}
-
-.overlay-spark {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 3;
-}
-
-/* 애니메이션 단계 */
-@keyframes moveToEquipment {
-  0% { transform: translateY(-50%) translateX(-150%); }
-  100% { transform: translateY(-50%) translateX(100%); }
-}
-
-@keyframes waitAtEquipment {
-  0% { transform: translateY(-50%) translateX(100%); }
-  100% { transform: translateY(-50%) translateX(100%); }
-}
-
-@keyframes moveToEnd {
-  0% { transform: translateY(-50%) translateX(100%); }
-  100% { transform: translateY(-50%) translateX(250%); }
 }
 </style>
