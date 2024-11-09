@@ -91,9 +91,7 @@ export default {
       pressPart,
       pressFixedFacility,
       pressMovedFacility,
-      showPlate: false,
-      showPart: false,
-      press_raw_data: [],
+      press_raw_data: [], // 배열로 초기화
       lastUpdateInsert: null,
       lastUpdateSelect: null
     };
@@ -107,50 +105,17 @@ export default {
       return this.press_raw_data.slice(-maxRows);
     }
   },
-  mounted() {
-    this.startAnimation();
-    this.intervalInsert = setInterval(this.fetchInsertData, 5000);
-  },
-  beforeUnmount() {
-    clearInterval(this.intervalInsert);
-    clearInterval(this.animationInterval);
-  },
   methods: {
-    startAnimation() {
-      this.showPlate = true;
-      this.showPart = true;
+    updateInsertData({ press_raw_data }) {
+      // 수신된 데이터로 업데이트
+      this.press_raw_data.push(press_raw_data); // 배열에 추가
+      this.lastUpdateInsert = new Date().toLocaleString();
     },
-    async fetchInsertData() {
-      try {
-        await this.$refs.insertComponent.fetchInsertData();
-        this.lastUpdateInsert = new Date().toLocaleString();
-        setTimeout(() => {
-          this.fetchSelectData();
-        }, 1000);
-      } catch (error) {
-        console.error("Error fetching insert data:", error);
-      }
-    },
-    async fetchSelectData() {
-      try {
-        await this.$refs.selectComponent.fetchSelectData();
-        this.lastUpdateSelect = new Date().toLocaleString();
-      } catch (error) {
-        console.error("Error fetching select data:", error);
-      }
-    },
-    updateInsertData({ press_raw_data, lastUpdateInsert }) {
-      this.press_raw_data.push(...press_raw_data.map(item => ({
-        ...item,
-        prediction: null
-      })));
-      this.lastUpdateInsert = lastUpdateInsert;
-    },
-    updatePredictionData({ predictionData, lastUpdateSelect }) {
+    updatePredictionData({ predictionData }) {
       if (this.press_raw_data.length > 0) {
-        this.press_raw_data[this.press_raw_data.length - 1].prediction = predictionData;
+        this.press_raw_data[this.press_raw_data.length - 1].prediction = predictionData; // 마지막 데이터에 예측 추가
       }
-      this.lastUpdateSelect = lastUpdateSelect;
+      this.lastUpdateSelect = new Date().toLocaleString();
     }
   }
 };
@@ -185,7 +150,6 @@ export default {
   animation: moveUpDown 5s infinite;
   height: 80%; /* 세로 길이를 조정하고 싶다면 이 값을 변경 */
 }
-
 
 /* Plate 초기 위치 설정과 애니메이션 */
 .plate-image {
