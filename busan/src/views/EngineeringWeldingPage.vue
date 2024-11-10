@@ -18,8 +18,8 @@
     <div class="animation-container">
       <img :src="beltImage" alt="Conveyor Belt" class="background-image" />
       <img :src="facilityImage" alt="Equipment" class="overlay-image" />
-      <img v-if="showSpark" :src="sparkImage" alt="Welding Spark" class="overlay-spark" />
-      <img :src="carImage" alt="Car Part" class="car-part" :key="animationKey" />
+      <img :src="sparkImage" alt="Welding Spark" class="overlay-spark" :class="{ 'spark-visible': showSpark }" />
+      <img :src="carImage" alt="Car Part" :class="['car-part', carAnimationStage]" />
     </div>
 
     <!-- 통합 데이터 테이블 -->
@@ -32,7 +32,6 @@
         <thead>
           <tr>
             <th>Index</th>
-            <th>Idx</th>
             <th>Machine Name</th>
             <th>Item No</th>
             <th>Trend Time</th>
@@ -48,7 +47,6 @@
         <tbody>
           <tr v-for="(item, index) in limitedWeldingData" :key="index">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.idx }}</td>
             <td>{{ item.machine_name }}</td>
             <td>{{ item.item_no }}</td>
             <td>{{ item.trend_time }}</td>
@@ -90,9 +88,8 @@ export default {
     return {
       welding_raw_data: [],
       lastUpdateInsert: null,
-      predictionData: null,
       lastUpdateSelect: null,
-      animationKey: 0, // 애니메이션 강제 리셋을 위한 키값
+      carAnimationStage: '', // 애니메이션 상태를 나타내는 클래스 이름
       showSpark: false, // spark 이미지 on/off 제어
       // 이미지 경로 설정
       beltImage,
@@ -111,25 +108,38 @@ export default {
     }
   },
   methods: {
-    updateInsertData({ welding_raw_data }) {
-      this.welding_raw_data.push(welding_raw_data);
-      this.lastUpdateInsert = new Date().toLocaleString();
-      this.animationKey += 1; // 애니메이션을 재시작
-      setTimeout(() => {
-        this.triggerSparkAnimation(); // 3초 후에 스파크 애니메이션 트리거
-      }, 2700); // 3초 대기 후 트리거
+    // 첫 번째 애니메이션 시작: 데이터 수신 시 설비까지 이동
+    updateInsertData({ welding_raw_data, lastUpdateInsert }) {
+      console.log("Data received in EngineeringWeldingPage:", welding_raw_data);
+
+      const flattenedData = { ...welding_raw_data.inserted_data, prediction: welding_raw_data.prediction };
+      this.welding_raw_data = [...this.welding_raw_data, flattenedData];
+      this.lastUpdateInsert = lastUpdateInsert;
+
+      // 첫 번째 애니메이션 시작: 설비 위치까지 이동
+      this.carAnimationStage = 'moveToEquipment';
     },
+
+    // 두 번째 애니메이션: 예측 데이터 수신 시 스파크 발생 후 벨트 끝으로 이동
     updatePredictionData({ predictionData }) {
       if (this.welding_raw_data.length > 0) {
         this.welding_raw_data[this.welding_raw_data.length - 1].prediction = predictionData;
       }
       this.lastUpdateSelect = new Date().toLocaleString();
+
+      // 스파크 애니메이션 0.3초 동안 표시 후 벨트 끝으로 이동
+      this.triggerSparkAnimation();
+      setTimeout(() => {
+        this.carAnimationStage = 'moveToEnd';
+      }, 300);
     },
+
+    // 스파크 애니메이션 제어
     triggerSparkAnimation() {
       this.showSpark = true;
       setTimeout(() => {
         this.showSpark = false;
-      }, 500); // 스파크 이미지를 1초 동안 표시
+      }, 300);
     }
   }
 };
@@ -216,11 +226,12 @@ export default {
   overflow: hidden;
 }
 
-.background-image, .overlay-image {
+.background-image {
   position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 1; /* 가장 아래 */
 }
 
 .car-part {
@@ -228,8 +239,15 @@ export default {
   width: 15%;
   top: 50%;
   transform: translateY(-50%) translateX(-150%);
-  z-index: 2;
-  animation: moveToEquipment 2.7s ease forwards, moveToEnd 2.3s ease 3s forwards;
+  z-index: 2; /* 그 위 */
+}
+
+.overlay-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 3; /* 설비가 그 위 */
 }
 
 .overlay-spark {
@@ -237,7 +255,13 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 3;
+  z-index: 4; /* 스파크가 가장 위 */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.overlay-spark.spark-visible {
+  opacity: 1;
 }
 
 /* 애니메이션 단계 */
@@ -249,5 +273,13 @@ export default {
 @keyframes moveToEnd {
   0% { transform: translateY(-50%) translateX(115%); }
   100% { transform: translateY(-50%) translateX(300%); }
+}
+
+.car-part.moveToEquipment {
+  animation: moveToEquipment 2.5s ease forwards;
+}
+
+.car-part.moveToEnd {
+  animation: moveToEnd 2s ease forwards;
 }
 </style>

@@ -1,12 +1,13 @@
 <template>
   <!-- Smart Quality Management 화면 -->
   <div class="quality-management-container">
-    <h1 class="header-title">Smart Quality Management</h1>
     <div class="quality-details">
+      <h1 class="header-title">Smart Quality Management</h1>
       <p>제품명 : {{ latestItem ? latestItem.item_no : 'N/A' }}</p>
       <p>시간 : {{ latestItem ? latestItem.working_time : 'N/A' }}</p>
-      <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : 'N/A' }}</p>
+      <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : '판정 중' }}</p>
     </div>
+    <img :src="pressPart" alt="Press Part" class="quality-press-part-image" />
   </div>
 
   <!-- Realtime Press Data and Prediction 화면 -->
@@ -17,10 +18,11 @@
     <div class="animation-container">
       <img :src="pressBackground" alt="Background" class="background-image overlay-position" />
       <img :src="pressBelt" alt="Belt" class="belt-image overlay-position" />
-      <img :src="pressPlate" alt="Plate" class="plate-image animatePlate" />
-      <img :src="pressPart" alt="Part" class="part-image animatePart" />
+      <img v-if="showPlate" :src="pressPlate" alt="Plate" class="plate-image" :class="plateAnimationStage" />
+      <img v-if="showPart" :src="pressPart" alt="Part" class="part-image" :class="partAnimationStage" />
       <img :src="pressFixedFacility" alt="Fixed Facility" class="fixed-facility overlay-position" />
-      <img :src="pressMovedFacility" alt="Moved Facility" class="moved-facility overlay-position move-up-down" />
+      <!-- Moved Facility는 항상 표시 -->
+      <img :src="pressMovedFacility" alt="Moved Facility" class="moved-facility overlay-position" :style="{ transform: movedFacilityPosition }" :class="{ 'move-down': moveMovedFacilityDown, 'move-up': moveMovedFacilityUp }" />
     </div>
 
     <!-- 통합 데이터 테이블 -->
@@ -33,7 +35,6 @@
         <thead>
           <tr>
             <th>Index</th>
-            <th>Idx</th>
             <th>Machine Name</th>
             <th>Item No</th>
             <th>Working Time</th>
@@ -47,7 +48,6 @@
         <tbody>
           <tr v-for="(item, index) in limitedPressData" :key="index">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.idx }}</td>
             <td>{{ item.machine_name }}</td>
             <td>{{ item.item_no }}</td>
             <td>{{ item.working_time }}</td>
@@ -91,9 +91,16 @@ export default {
       pressPart,
       pressFixedFacility,
       pressMovedFacility,
-      press_raw_data: [], // 배열로 초기화
+      press_raw_data: [],
       lastUpdateInsert: null,
-      lastUpdateSelect: null
+      lastUpdateSelect: null,
+      plateAnimationStage: '', // Plate 애니메이션 상태
+      partAnimationStage: '', // Part 애니메이션 상태
+      showPlate: false, // Plate 표시 상태
+      showPart: false, // Part 표시 상태
+      moveMovedFacilityUp: false, // Moved Facility 하->상 이동 애니메이션 제어
+      moveMovedFacilityDown: false, // Moved Facility 상->하 이동 애니메이션 제어
+      movedFacilityPosition: 'translateY(-150px)' // Moved Facility의 초기 위치
     };
   },
   computed: {
@@ -106,22 +113,91 @@ export default {
     }
   },
   methods: {
-    updateInsertData({ press_raw_data }) {
-      // 수신된 데이터로 업데이트
-      this.press_raw_data.push(press_raw_data); // 배열에 추가
-      this.lastUpdateInsert = new Date().toLocaleString();
+    // 데이터 수신 시 Plate 이동 -> Moved Facility 하->상 이동
+    updateInsertData({ press_raw_data, lastUpdateInsert }) {
+      console.log("Data received in EngineeringPressPage:", press_raw_data);
+
+      const flattenedData = { ...press_raw_data.inserted_data, prediction: press_raw_data.prediction };
+      this.press_raw_data = [...this.press_raw_data, flattenedData];
+      this.lastUpdateInsert = lastUpdateInsert;
+
+      // Plate 이동 애니메이션 시작
+      this.showPlate = true;
+      this.plateAnimationStage = 'moveToEquipment';
+
+      setTimeout(() => {
+        this.plateAnimationStage = ''; // Plate 이동 후 애니메이션 초기화
+        this.showPlate = false; // Plate 숨기기
+
+        // Moved Facility 이동 애니메이션 (하->상)
+        this.moveMovedFacilityUp = true;
+        setTimeout(() => {
+          this.moveMovedFacilityUp = false; // 이동 완료 후 Moved Facility 초기화
+          this.movedFacilityPosition = 'translateY(-65px)'; // -65px로 고정
+        }, 500);
+      }, 2000);
     },
+
+    // 예측 데이터 수신 시 Moved Facility 상->하 이동 -> Part 이동
     updatePredictionData({ predictionData }) {
       if (this.press_raw_data.length > 0) {
-        this.press_raw_data[this.press_raw_data.length - 1].prediction = predictionData; // 마지막 데이터에 예측 추가
+        this.press_raw_data[this.press_raw_data.length - 1].prediction = predictionData;
       }
       this.lastUpdateSelect = new Date().toLocaleString();
+
+      // Moved Facility 이동 애니메이션 (상->하)
+      this.moveMovedFacilityDown = true;
+      setTimeout(() => {
+        this.moveMovedFacilityDown = false; // 이동 완료 후 초기화
+        this.movedFacilityPosition = 'translateY(-150px)'; // -150px로 고정
+
+        // Part 이동 애니메이션 시작
+        this.showPart = true;
+        this.partAnimationStage = 'moveToEnd';
+        
+        setTimeout(() => {
+          this.partAnimationStage = ''; // 이동 완료 후 Part 애니메이션 초기화
+          this.showPart = false; // Part 숨기기
+        }, 2000);
+      }, 500);
     }
   }
 };
 </script>
 
 <style scoped>
+/* Smart Quality Management 스타일 */
+.quality-management-container {
+  background-color: #2E2E2E;
+  color: #FFFFFF;
+  padding: 20px;
+  border: 1px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
+  margin: auto;
+}
+
+.quality-details {
+  font-size: 18px;
+  line-height: 1.8;
+  text-align: left;
+  padding-left: 150px;
+  flex: 1;
+}
+
+.header-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.quality-press-part-image {
+  width: 500px;
+  height: auto;
+  margin-left: 20px;
+}
+
 .page-container {
   background-color: #2E2E2E;
   color: #FFFFFF;
@@ -132,12 +208,11 @@ export default {
 .animation-container {
   position: relative;
   width: 100%;
-  height: 300px; /* 높이 확장 */
+  height: 300px;
   display: flex;
   align-items: center;
 }
 
-/* 동일한 가로세로 크기 및 위치 통일 */
 .overlay-position {
   position: absolute;
   top: 0;
@@ -146,55 +221,69 @@ export default {
   height: 100%;
 }
 
-.moved-facility {
-  animation: moveUpDown 5s infinite;
-  height: 80%; /* 세로 길이를 조정하고 싶다면 이 값을 변경 */
-}
-
-/* Plate 초기 위치 설정과 애니메이션 */
+/* Plate 이동 애니메이션 */
 .plate-image {
   position: absolute;
   top: 50%;
   transform: translateY(-70%) translateX(50%);
+  z-index: 2;
 }
 
-@keyframes movePlate {
-  0%, 20% { transform: translateY(-70%) translateX(50%); }
-  80% { transform: translateY(-70%) translateX(600%); }
+@keyframes moveToEquipment {
+  0% { transform: translateY(-70%) translateX(50%); }
   100% { transform: translateY(-70%) translateX(600%); }
 }
 
-.animatePlate {
-  animation: movePlate 5s linear infinite;
+.plate-image.moveToEquipment {
+  animation: moveToEquipment 2s ease forwards;
 }
 
-/* Part 초기 위치 설정과 애니메이션 */
+/* Part 이동 애니메이션 */
 .part-image {
   position: absolute;
   top: 50%;
-  transform: translateY(-80%) translateX(590%);
+  transform: translateY(-80%) translateX(430%);
+  z-index: 2;
 }
 
-@keyframes movePart {
-  0%, 20% { transform: translateY(-80%) translateX(430%); }
-  80% { transform: translateY(-80%) translateX(800%); }
+@keyframes moveToEnd {
+  0% { transform: translateY(-80%) translateX(430%); }
   100% { transform: translateY(-80%) translateX(800%); }
 }
 
-.animatePart {
-  animation: movePart 5s linear infinite;
+.part-image.moveToEnd {
+  animation: moveToEnd 2s ease forwards;
 }
 
-/* Moved Facility 애니메이션 */
-@keyframes moveUpDown {
-  0% { transform: translateY(-65px); }
-  20% { transform: translateY(-150px); }
-  80% { transform: translateY(-150px); }
+/* Moved Facility 상하 이동 애니메이션 */
+.moved-facility {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  transform: translateY(-150px); /* 기본 위치를 -150px로 고정 */
+}
+
+/* 하 -> 상 이동 */
+@keyframes moveUp {
+  0% { transform: translateY(-150px); }
   100% { transform: translateY(-65px); }
 }
 
-.move-up-down {
-  animation: moveUpDown 5s infinite;
+.move-up {
+  animation: moveUp 0.5s ease forwards;
+}
+
+/* 상 -> 하 이동 */
+@keyframes moveDown {
+  0% { transform: translateY(-65px); }
+  100% { transform: translateY(-150px); }
+}
+
+.move-down {
+  animation: moveDown 0.5s ease forwards;
 }
 
 .data-table {

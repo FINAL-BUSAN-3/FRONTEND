@@ -17,7 +17,8 @@ export default {
 
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        this.welding_raw_data = data; // 수신한 데이터 저장
+        console.log("Received data in RealtimeWeldingInsertComponents:", data); // 콘솔 로그
+        this.welding_raw_data = data;
         const lastUpdateInsert = new Date().toLocaleTimeString();
         this.$emit('data-updated', { welding_raw_data: this.welding_raw_data, lastUpdateInsert });
       };
