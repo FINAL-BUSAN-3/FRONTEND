@@ -6,22 +6,24 @@
     <div v-if="!uploadSuccess">
       <div class="selection-container">
         <div class="process-section">
+          <!-- 공정 선택 UI를 여기서 직접 렌더링 -->
           <label for="process-select">공정</label>
-          <select id="process-select" v-model="selectedProcess">
+          <select id="process-select" v-model="selectedProcess" @change="onProcessSelected">
             <option value="" disabled>공정을 선택해 주세요</option>
             <option v-for="process in processes" :key="process" :value="process">{{ process }}</option>
           </select>
+          <ProcessSelectComponent @processesLoaded="setProcesses" />
         </div>
 
         <div class="model-section">
           <label for="model-select">모델</label>
           <div class="model-tabs">
-              <button class="tab" :class="{ active: isPreviousModel }" @click="selectPreviousModel">이전 모델</button>
-              <button class="tab" :class="{ active: !isPreviousModel }" @click="selectNewModel">신규 모델</button>
+            <button class="tab" :class="{ active: isPreviousModel }" @click="selectPreviousModel">이전 모델</button>
+            <button class="tab" :class="{ active: !isPreviousModel }" @click="selectNewModel">신규 모델</button>
           </div>
 
           <div v-if="isPreviousModel">
-            <ModelSelectComponent @update:modelFileNames="updateModelFileNames" />
+            <ModelSelectComponent :processName="selectedProcess" @update:modelFileNames="updateModelFileNames" />
             <select id="model-select" v-model="selectedModel" @change="onModelChange">
               <option value="" disabled>모델을 선택해 주세요</option>
               <option v-for="model in models" :key="model" :value="model">{{ model }}</option>
@@ -200,6 +202,7 @@
 </template>
 
 <script>
+import ProcessSelectComponent from "@/components/model_deployment/ProcessSelect.vue";
 import ModelSelectComponent from "@/components/model_deployment/ModelSelect.vue";
 import ModelApply from "@/components/model_deployment/ModelApply.vue";
 import axios from 'axios';
@@ -207,6 +210,7 @@ import axios from 'axios';
 export default {
   name: "ModelDeploymentPage",
   components: {
+    ProcessSelectComponent,
     ModelSelectComponent,
     ModelApply,
   },
@@ -216,7 +220,7 @@ export default {
       sendModelApply: false,
       selectedProcess: "",
       selectedModel: "",
-      processes: ["프레스", "용접"],
+      processes: [], // ProcessSelectComponent에서 가져온 공정 목록 저장
       models: [],
       selectedModelInfo: {},
       newModelInfo: {
@@ -235,9 +239,15 @@ export default {
     };
   },
   methods: {
+    setProcesses(processes) {
+      this.processes = processes;
+    },
+    onProcessSelected() {
+      // 공정 선택 시 관련 처리가 필요하다면 추가
+    },
     async fetchActiveModelInfo() {
       try {
-        const response = await axios.get("http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-deployment/model-detail");
+        const response = await axios.get(`http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/model-deployment/model-detail/${this.selectedProcess}`);
         this.activeModelInfo = response.data;
       } catch (error) {
         console.error("현재 사용 중인 모델 정보를 불러오는데 실패했습니다:", error);
@@ -297,6 +307,7 @@ export default {
       this.displayModelInfo = this.isPreviousModel ? this.selectedModelInfo : this.newModelInfo;
       this.displayModelInfo.deployment_date = new Date().toISOString().slice(0, 19).replace("T", " ");
       this.uploadSuccess = true;
+      await this.fetchActiveModelInfo();
     },
     async onModelChange() {
       try {
@@ -313,11 +324,10 @@ export default {
       alert(message);
     },
   },
-  async created() {
-    await this.fetchActiveModelInfo();
-  }
 };
 </script>
+
+
 
 <style scoped>
 .model-deployment {
