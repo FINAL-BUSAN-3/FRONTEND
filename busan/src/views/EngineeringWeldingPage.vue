@@ -175,7 +175,7 @@ export default {
     async resumeProcess() {
       this.processStopped = false;
       try {
-        const response = await fetch("http://localhost:8000/resume-process", { method: 'POST' });
+        const response = await fetch("http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/resume-process", { method: 'POST' });
         if (response.ok) {
           console.log("Process resumed");
         }
