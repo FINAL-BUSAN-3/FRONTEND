@@ -1,63 +1,51 @@
 <template>
-  <div>
-    <h1>WeldingSelect.vue</h1>
-    <p v-if="lastUpdate">Last update: {{ lastUpdate }}</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Prediction</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="predictionData !== null">
-          <td>{{ predictionData }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <div />
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
-  name: 'WeldingSelect',
+  name: 'RealtimeWeldingSelect',
   data() {
     return {
-      predictionData: null, // 예측값을 저장할 변수
-      lastUpdate: null      // 마지막 업데이트 시간을 표시할 변수
+      predictionData: {},
+      socket: null,
     };
   },
-  async created() {
-    await this.fetchPrediction(); // 컴포넌트가 생성될 때 첫 예측 데이터를 가져옵니다.
-    setInterval(this.fetchPrediction, 5000); // 5초마다 예측 데이터를 자동 갱신
-  },
   methods: {
-    async fetchPrediction() {
-      try {
-        const response = await axios.get('http://ec2-18-215-52-54.compute-1.amazonaws.com:8000/engineering/realtime-welding/select');
-        this.predictionData = response.data.prediction; // 예측값을 predictionData에 저장
-        this.lastUpdate = new Date().toLocaleTimeString(); // 마지막 업데이트 시간 저장
-        console.log('Prediction updated:', this.predictionData); // 데이터 확인용 로그
-      } catch (error) {
-        console.error('Failed to fetch prediction data:', error);
-      }
+    startSocket() {
+      this.socket = new WebSocket('ws://ec2-18-215-52-54.compute-1.amazonaws.com:8000/engineering/ws/realtime-welding/select');
+
+      this.socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        this.predictionData = data.welding_prediction;
+        const lastUpdateSelect = new Date().toLocaleTimeString();
+        this.$emit('prediction-updated', { predictionData: this.predictionData, lastUpdateSelect });
+
+        if (data.stop_event) {
+          this.$emit('process-stopped');
+        }
+      };
+
+      this.socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      this.socket.onclose = () => {
+        console.log('WebSocket closed');
+      };
+    }
+  },
+  mounted() {
+    this.startSocket();
+  },
+  beforeUnmount() {
+    if (this.socket) {
+      this.socket.close();
     }
   }
 };
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-th {
-  background-color: #f2f2f2;
-}
+/* 스타일 설정 */
 </style>
