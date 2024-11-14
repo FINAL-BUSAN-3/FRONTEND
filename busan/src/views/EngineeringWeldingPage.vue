@@ -7,7 +7,7 @@
       <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : '판정 중' }}</p>
       <p>
         <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/14/" target="_blank">
-          Superset 분석 보러가기
+          데이터 분석 보러가기
         </a>
       </p>
     </div>
@@ -222,7 +222,7 @@ export default {
 }
 
 .quality-car-image {
-  width: 500px;
+  width: 300px;
   height: auto;
   margin-left: 20px;
 }
