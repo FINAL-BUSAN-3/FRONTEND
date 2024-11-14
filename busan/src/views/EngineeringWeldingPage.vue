@@ -1,20 +1,28 @@
 <template>
-  <!-- Smart Quality Management 화면 -->
   <div class="quality-management-container">
     <div class="quality-details">
       <h1 class="header-title">Smart Quality Management</h1>
       <p>제품명 : {{ latestItem ? latestItem.item_no : 'N/A' }}</p>
       <p>시간 : {{ latestItem ? latestItem.trend_time : 'N/A' }}</p>
       <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : '판정 중' }}</p>
+      <p>
+        <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/14/" target="_blank">
+          Superset 분석 보러가기
+        </a>
+      </p>
     </div>
     <img :src="carImage" alt="Car Part" class="quality-car-image" />
   </div>
 
-  <!-- Realtime Welding Data and Prediction 화면 -->
+  <!-- 공정 중단 팝업 -->
+  <div v-if="processStopped" class="popup">
+    <p>불량이 예측되어 공정이 중단되었습니다. 다시 가동하시겠습니까?</p>
+    <button @click="resumeProcess">재가동</button>
+  </div>
+
   <div class="page-container">
     <h1 class="page-title">Realtime Welding Data and Prediction</h1>
 
-    <!-- 애니메이션 요소 -->
     <div class="animation-container">
       <img :src="beltImage" alt="Conveyor Belt" class="background-image" />
       <img :src="facilityImage" alt="Equipment" class="overlay-image" />
@@ -22,12 +30,12 @@
       <img :src="carImage" alt="Car Part" :class="['car-part', carAnimationStage]" />
     </div>
 
-    <!-- 통합 데이터 테이블 -->
     <section>
       <h2 class="section-title">Welding Data and Prediction</h2>
       <p v-if="lastUpdateInsert || lastUpdateSelect" class="last-update">
         Last update: {{ lastUpdateInsert || lastUpdateSelect }}
       </p>
+      <button @click="resetData" class="reset-button">데이터 리셋</button>
       <table class="data-table">
         <thead>
           <tr>
@@ -45,7 +53,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in limitedWeldingData" :key="index">
+          <tr v-for="(item, index) in welding_raw_data" :key="index">
             <td>{{ index + 1 }}</td>
             <td>{{ item.machine_name }}</td>
             <td>{{ item.item_no }}</td>
@@ -56,13 +64,12 @@
             <td>{{ item.welding_current_ka }}</td>
             <td>{{ item.weld_voltage_v }}</td>
             <td>{{ item.weld_time_ms }}</td>
-            <td>{{ item.prediction }}</td>
+            <td>{{ item.prediction !== null ? item.prediction : 'N/A' }}</td>
           </tr>
         </tbody>
       </table>
     </section>
 
-    <!-- 컴포넌트 호출 -->
     <RealtimeWeldingInsertComponents ref="insertComponent" @data-updated="updateInsertData" />
     <RealtimeWeldingSelect ref="selectComponent" @prediction-updated="updatePredictionData" />
   </div>
@@ -72,14 +79,13 @@
 import RealtimeWeldingInsertComponents from '@/components/engineering/RealtimeWeldingInsert.vue';
 import RealtimeWeldingSelect from '@/components/engineering/RealtimeWeldingSelect.vue';
 
-// 이미지 파일 import
 import beltImage from '@/assets/images/welding_belt.png';
 import carImage from '@/assets/images/welding_car.png';
 import facilityImage from '@/assets/images/welding_facility.png';
 import sparkImage from '@/assets/images/welding_spark.png';
 
 export default {
-  name: 'RealtimeWeldingPage',
+  name: 'EngineeringWeldingPage',
   components: {
     RealtimeWeldingInsertComponents,
     RealtimeWeldingSelect
@@ -89,9 +95,9 @@ export default {
       welding_raw_data: [],
       lastUpdateInsert: null,
       lastUpdateSelect: null,
-      carAnimationStage: '', // 애니메이션 상태를 나타내는 클래스 이름
-      showSpark: false, // spark 이미지 on/off 제어
-      // 이미지 경로 설정
+      carAnimationStage: '',
+      showSpark: false,
+      processStopped: false,
       beltImage,
       carImage,
       facilityImage,
@@ -102,51 +108,94 @@ export default {
     latestItem() {
       return this.welding_raw_data.length > 0 ? this.welding_raw_data[this.welding_raw_data.length - 1] : null;
     },
-    limitedWeldingData() {
-      const maxRows = 50;
-      return this.welding_raw_data.slice(-maxRows);
+  },
+  mounted() {
+    const savedData = localStorage.getItem('weldingData');
+    if (savedData) {
+      this.welding_raw_data = JSON.parse(savedData);
+    }
+  },
+  watch: {
+    welding_raw_data: {
+      deep: true,
+      handler(newData) {
+        localStorage.setItem('weldingData', JSON.stringify(newData));
+      }
     }
   },
   methods: {
-    // 첫 번째 애니메이션 시작: 데이터 수신 시 설비까지 이동
     updateInsertData({ welding_raw_data, lastUpdateInsert }) {
-      console.log("Data received in EngineeringWeldingPage:", welding_raw_data);
+      if (this.processStopped) return; // 중단 시 업데이트 중지
 
       const flattenedData = { ...welding_raw_data.inserted_data, prediction: welding_raw_data.prediction };
-      this.welding_raw_data = [...this.welding_raw_data, flattenedData];
+      this.welding_raw_data.push(flattenedData); // 데이터 표에 추가
       this.lastUpdateInsert = lastUpdateInsert;
-
-      // 첫 번째 애니메이션 시작: 설비 위치까지 이동
       this.carAnimationStage = 'moveToEquipment';
     },
 
-    // 두 번째 애니메이션: 예측 데이터 수신 시 스파크 발생 후 벨트 끝으로 이동
-    updatePredictionData({ predictionData }) {
-      if (this.welding_raw_data.length > 0) {
-        this.welding_raw_data[this.welding_raw_data.length - 1].prediction = predictionData;
-      }
-      this.lastUpdateSelect = new Date().toLocaleString();
+    updatePredictionData({ predictionData, lastUpdateSelect }) {
+      if (this.processStopped) return; // 중단 시 업데이트 중지
 
-      // 스파크 애니메이션 0.3초 동안 표시 후 벨트 끝으로 이동
-      this.triggerSparkAnimation();
-      setTimeout(() => {
+      if (this.welding_raw_data.length > 0) {
+        const lastData = { ...this.welding_raw_data[this.welding_raw_data.length - 1] };
+        lastData.prediction = predictionData;
+        this.welding_raw_data.splice(this.welding_raw_data.length - 1, 1, lastData); // 마지막 행에 prediction 업데이트
+        this.welding_raw_data = [...this.welding_raw_data]; // 강제로 반응성 트리거
+      }
+      this.lastUpdateSelect = lastUpdateSelect;
+
+      this.triggerSparkAnimation(); // 스파크 애니메이션 발생
+
+      if (predictionData === 1 && !this.processStopped) {
+        this.handleProcessStopped();
+        setTimeout(() => {
+          this.carAnimationStage = 'moveToEnd';
+          this.showPopup();
+        }, 300);
+      } else if (predictionData !== 1) {
         this.carAnimationStage = 'moveToEnd';
-      }, 300);
+      }
     },
 
-    // 스파크 애니메이션 제어
     triggerSparkAnimation() {
       this.showSpark = true;
       setTimeout(() => {
         this.showSpark = false;
       }, 300);
+    },
+
+    showPopup() {
+      this.processStopped = true;
+    },
+
+    handleProcessStopped() {
+      this.processStopped = true;
+    },
+
+    async resumeProcess() {
+      this.processStopped = false;
+      try {
+        const response = await fetch("http://localhost:8000/resume-process", { method: 'POST' });
+        if (response.ok) {
+          console.log("Process resumed");
+        }
+      } catch (error) {
+        console.error("Error resuming process:", error);
+      }
+    },
+
+    resetData() {
+      this.welding_raw_data = [];
+      localStorage.removeItem('weldingData');
+      this.lastUpdateInsert = null;
+      this.lastUpdateSelect = null;
     }
   }
 };
 </script>
 
+
 <style scoped>
-/* Smart Quality Management 스타일 */
 .quality-management-container {
   background-color: #2E2E2E;
   color: #FFFFFF;
@@ -178,7 +227,17 @@ export default {
   margin-left: 20px;
 }
 
-/* Realtime Welding Data and Prediction 스타일 */
+.popup {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid black;
+  padding: 20px;
+  z-index: 1000;
+}
+
 .page-container {
   background-color: #2E2E2E;
   color: #FFFFFF;
@@ -214,7 +273,6 @@ export default {
   color: #FFFFFF;
 }
 
-/* 애니메이션 스타일 */
 .animation-container {
   position: relative;
   width: 100%;
@@ -231,7 +289,7 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 1; /* 가장 아래 */
+  z-index: 1;
 }
 
 .car-part {
@@ -239,7 +297,7 @@ export default {
   width: 15%;
   top: 50%;
   transform: translateY(-50%) translateX(-150%);
-  z-index: 2; /* 그 위 */
+  z-index: 2;
 }
 
 .overlay-image {
@@ -247,7 +305,7 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 3; /* 설비가 그 위 */
+  z-index: 3;
 }
 
 .overlay-spark {
@@ -255,7 +313,7 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 4; /* 스파크가 가장 위 */
+  z-index: 4;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -264,7 +322,6 @@ export default {
   opacity: 1;
 }
 
-/* 애니메이션 단계 */
 @keyframes moveToEquipment {
   0% { transform: translateY(-50%) translateX(-150%); }
   100% { transform: translateY(-50%) translateX(115%); }

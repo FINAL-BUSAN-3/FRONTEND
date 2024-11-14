@@ -7,7 +7,7 @@ export default {
   name: 'RealtimeWeldingSelect',
   data() {
     return {
-      predictionData: {}, // 수신한 예측 데이터 저장
+      predictionData: {},
       socket: null,
     };
   },
@@ -17,9 +17,13 @@ export default {
 
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        this.predictionData = data.welding_prediction; // 웹소켓으로부터 예측 결과 수신
+        this.predictionData = data.welding_prediction;
         const lastUpdateSelect = new Date().toLocaleTimeString();
         this.$emit('prediction-updated', { predictionData: this.predictionData, lastUpdateSelect });
+
+        if (data.stop_event) {
+          this.$emit('process-stopped');
+        }
       };
 
       this.socket.onerror = (error) => {
@@ -43,5 +47,5 @@ export default {
 </script>
 
 <style scoped>
-/* 스타일 추가 */
+/* 스타일 설정 */
 </style>

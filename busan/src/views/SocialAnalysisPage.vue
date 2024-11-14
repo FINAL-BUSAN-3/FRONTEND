@@ -3,7 +3,12 @@
     <div class="header">
       <h2>예측 판매량</h2>
       <span class="estimated-sales">00%</span>
-    </div>
+      <p>
+        <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/15/" target="_blank">
+          Superset 분석 보러가기
+        </a>
+      </p>
+  </div>
 
     <!-- 워드 클라우드 및 키워드량 그래프 -->
     <div class="row">

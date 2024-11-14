@@ -7,7 +7,7 @@ export default {
   name: 'RealtimeWeldingInsertComponents',
   data() {
     return {
-      welding_raw_data: {}, // 최근 수신된 데이터 저장
+      welding_raw_data: {},
       socket: null,
     };
   },
@@ -17,7 +17,6 @@ export default {
 
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log("Received data in RealtimeWeldingInsertComponents:", data); // 콘솔 로그
         this.welding_raw_data = data;
         const lastUpdateInsert = new Date().toLocaleTimeString();
         this.$emit('data-updated', { welding_raw_data: this.welding_raw_data, lastUpdateInsert });
@@ -44,5 +43,5 @@ export default {
 </script>
 
 <style scoped>
-/* 스타일 추가 */
+/* 스타일 설정 */
 </style>

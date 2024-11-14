@@ -3,9 +3,14 @@
     <div class="header">
       <h2>월 총 생산량</h2>
       <span class="production-rate">887 대/일</span>
+    <p>
+        <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/13/" target="_blank">
+          Superset 분석 보러가기
+        </a>
+      </p>
     </div>
 
-    <!-- 프레스와 용접 데이터를 하나의 카드로 묶고 버튼을 하단 중앙에 배치 -->
+      <!-- 프레스와 용접 데이터를 하나의 카드로 묶고 버튼을 하단 중앙에 배치 -->
     <div class="chart-row">
       <div class="chart-card">
         <div class="combined-chart">

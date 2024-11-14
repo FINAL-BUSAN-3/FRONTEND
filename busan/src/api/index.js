@@ -8,4 +8,15 @@ const api = axios.create({
   timeout: 1000,
 });
 
+// resume-process 엔드포인트 호출을 위한 함수 정의
+api.resumeProcess = async function () {
+  try {
+    const response = await api.post('/resume-process');
+    return response.data;
+  } catch (error) {
+    console.error("Error resuming the process:", error);
+    throw error;
+  }
+};
+
 export default api;

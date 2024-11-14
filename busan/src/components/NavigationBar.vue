@@ -8,12 +8,12 @@
       <ul class="nav-links">
         <li>
           <router-link to="/management">
-            <i class="fas fa-chart-line"></i> <span>경영지표</span>
+            <i class="fas fa-chart-line"></i> <span>생산 경영지표</span>
           </router-link>
         </li>
         <li>
           <router-link to="/social"> <!-- 소셜지표 링크 추가 -->
-            <i class="fas fa-comments"></i> <span>소셜지표</span> <!-- 아이콘으로 댓글 아이콘 사용 -->
+            <i class="fas fa-comments"></i> <span>소셜 경영지표</span> <!-- 아이콘으로 댓글 아이콘 사용 -->
           </router-link>
         </li>
         <li>
