@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrapper">
     <div class="login-container">
-      <h2>로그인</h2>
+      <h2>로그인-젠킨스 자동화 배포</h2>
       <form @submit.prevent="submitLogin">
         <div class="input-group">
           <label>사용자 이름:</label>
