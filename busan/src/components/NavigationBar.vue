@@ -7,22 +7,36 @@
       </div>
       <ul class="nav-links">
         <li>
-          <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/15/" target="_blank">
-            <i class="fas fa-chart-line"></i> <span>소셜 경영지표</span>
-          </a>
+          <span><i class="fas fa-tools"></i> <span>경영 지표</span></span>
+          <ul>
+            <li>
+              <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/15/" target="_blank">
+                <i class="fas fa-comments"></i> <span>소셜 경영지표</span>
+              </a>
+            </li>
+            <li>
+              <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/13/" target="_blank">
+                <i class="fas fa-chart-line"></i> <span>생산 경영지표</span>
+              </a>
+            </li>
+          </ul>
         </li>
-        <li>
-          <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/13/" target="_blank">
-            <i class="fas fa-chart-line"></i> <span>생산 경영지표</span>
-          </a>
-        </li>
+        
         <li>
           <span><i class="fas fa-tools"></i> <span>엔지니어링 지표</span></span>
           <ul>
             <li><router-link to="/engineering/press"><i class="fas fa-cogs"></i> <span> 프레스</span></router-link></li>
             <li><router-link to="/engineering/welding"><i class="fas fa-wrench"></i> <span> 용접</span></router-link></li>
+            <li>
+              <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/14/" target="_blank">
+                <i class="fas fa-chart-line"></i> <span>셀프 분석</span>
+              </a>
+            </li>
           </ul>
         </li>
+
+
+
         <li>
           <span><i class="fas fa-car"></i> <span>모델</span></span>
           <ul>
@@ -64,14 +78,14 @@ export default {
   },
   methods: {
     logout() {
-      fetch('http://ec2-18-215-52-54.compute-1.amazonaws.com:8080/logout', {
+      fetch('http://localhost:8080/logout', {
         method: 'POST',
         credentials: 'include'
       })
         .then(() => {
           // 로그아웃 시 로컬 스토리지에서 사용자 이름 제거
           localStorage.removeItem('username');
-          window.location.href = 'http://ec2-18-215-52-54.compute-1.amazonaws.com:8080';
+          window.location.href = 'http://localhost:8080';
         })
         .catch((error) => {
           console.error("로그아웃 에러:", error);
