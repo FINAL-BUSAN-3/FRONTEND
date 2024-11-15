@@ -7,6 +7,9 @@
       <p>시간 : {{ latestItem ? latestItem.working_time : 'N/A' }}</p>
       <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : '판정 중' }}</p>
     </div>
+    <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/14/" target="_blank">
+          데이터 분석하기
+    </a>
     <img :src="pressPart" alt="Press Part" class="quality-press-part-image" />
   </div>
 
@@ -31,13 +34,14 @@
       <p v-if="lastUpdateInsert || lastUpdateSelect" class="last-update">
         Last update: {{ lastUpdateInsert || lastUpdateSelect }}
       </p>
+      <button @click="resetData" class="reset-button">데이터 리셋</button>
       <table class="data-table">
         <thead>
           <tr>
             <th>Index</th>
             <th>Machine Name</th>
             <th>Item No</th>
-            <th>Working Time</th>
+            <th>Trend Time</th>
             <th>Press Time (ms)</th>
             <th>Pressure 1</th>
             <th>Pressure 2</th>
@@ -50,7 +54,7 @@
             <td>{{ index + 1 }}</td>
             <td>{{ item.machine_name }}</td>
             <td>{{ item.item_no }}</td>
-            <td>{{ item.working_time }}</td>
+            <td>{{ item.trend_time }}</td>
             <td>{{ item.press_time_ms }}</td>
             <td>{{ item.pressure_1 }}</td>
             <td>{{ item.pressure_2 }}</td>
@@ -100,7 +104,7 @@ export default {
       showPart: false, // Part 표시 상태
       moveMovedFacilityUp: false, // Moved Facility 하->상 이동 애니메이션 제어
       moveMovedFacilityDown: false, // Moved Facility 상->하 이동 애니메이션 제어
-      movedFacilityPosition: 'translateY(-150px)' // Moved Facility의 초기 위치
+      movedFacilityPosition: 'translateY(-100px)' // Moved Facility의 초기 위치
     };
   },
   computed: {
@@ -133,7 +137,7 @@ export default {
         this.moveMovedFacilityUp = true;
         setTimeout(() => {
           this.moveMovedFacilityUp = false; // 이동 완료 후 Moved Facility 초기화
-          this.movedFacilityPosition = 'translateY(-65px)'; // -65px로 고정
+          this.movedFacilityPosition = 'translateY(-60px)'; // -65px로 고정
         }, 500);
       }, 2000);
     },
@@ -149,7 +153,7 @@ export default {
       this.moveMovedFacilityDown = true;
       setTimeout(() => {
         this.moveMovedFacilityDown = false; // 이동 완료 후 초기화
-        this.movedFacilityPosition = 'translateY(-150px)'; // -150px로 고정
+        this.movedFacilityPosition = 'translateY(-100px)'; // -150px로 고정
 
         // Part 이동 애니메이션 시작
         this.showPart = true;
@@ -193,9 +197,10 @@ export default {
 }
 
 .quality-press-part-image {
-  width: 500px;
+  width: 200px; /* 이미지 크기 조정 */
   height: auto;
-  margin-left: 20px;
+  transform: translateX(-50px); /* 음수 값을 증가시켜 더 왼쪽으로 이동 */
+  margin-right: 20px; /* 오른쪽 여백 추가로 다른 요소들과 간격 확보 */
 }
 
 .page-container {
@@ -261,15 +266,15 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 80%;
   z-index: 3;
-  transform: translateY(-150px); /* 기본 위치를 -150px로 고정 */
+  transform: translateY(-100px); /* 기본 위치를 -150px로 고정 */
 }
 
 /* 하 -> 상 이동 */
 @keyframes moveUp {
-  0% { transform: translateY(-150px); }
-  100% { transform: translateY(-65px); }
+  0% { transform: translateY(-100px); }
+  100% { transform: translateY(-60px); }
 }
 
 .move-up {
@@ -278,8 +283,8 @@ export default {
 
 /* 상 -> 하 이동 */
 @keyframes moveDown {
-  0% { transform: translateY(-65px); }
-  100% { transform: translateY(-150px); }
+  0% { transform: translateY(-60px); }
+  100% { transform: translateY(-100px); }
 }
 
 .move-down {

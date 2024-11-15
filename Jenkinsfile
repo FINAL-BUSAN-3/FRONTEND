@@ -11,12 +11,12 @@ pipeline {
                         steps {
                             script{
                                 def localUser = 'ubuntu'
-                                def ec2-18-215-52-54.compute-1.amazonaws.com = 'ec2-18-215-52-54.compute-1.amazonaws.com'
+                                def remote_server = 'ec2-18-215-52-54.compute-1.amazonaws.com'
                                 def pemPath = '/var/jenkins_home/busan.pem'
 
                                 sh 'echo "[Schedule Sync] Git clone"'
                                 sh """
-                                ssh -i ${pemPath} ${localUser}@${ec2-18-215-52-54.compute-1.amazonaws.com} "cd /home/ubuntu/FRONTEND && git pull"
+                                ssh -i ${pemPath} ${localUser}@${remote_server} "cd /home/ubuntu/FRONTEND && git pull"
                                 """
                                                 slackSend(channel: '#deployment-alert', color: '#00FF7F' , message: "[WEB] GIT PULL : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                             }
@@ -26,12 +26,12 @@ pipeline {
 			steps{
 				script{
 					def localUser = 'ubuntu'
-                    def ec2-18-215-52-54.compute-1.amazonaws.com = 'ec2-18-215-52-54.compute-1.amazonaws.com'
+                    def remote_server = 'ec2-18-215-52-54.compute-1.amazonaws.com'
                     def pemPath = '/var/jenkins_home/busan.pem'
 					
 
 					sh """
-                    ssh -i ${pemPath} ${localUser}@${ec2-18-215-52-54.compute-1.amazonaws.com} "pm2 delete frontend || echo '0'"
+                    ssh -i ${pemPath} ${localUser}@${remote_server} "pm2 delete frontend || echo '0'"
                     """
                     sh 'echo "[WEB] SERVER DOWN"'
 
@@ -44,11 +44,11 @@ pipeline {
 			steps{
 				script{
 					def localUser = 'ubuntu'
-                    def ec2-18-215-52-54.compute-1.amazonaws.com = 'ec2-18-215-52-54.compute-1.amazonaws.com'
+                    def remote_server = 'ec2-18-215-52-54.compute-1.amazonaws.com'
                     def pemPath = '/var/jenkins_home/busan.pem'
 
 					sh """
-                    ssh -i ${pemPath} ${localUser}@${ec2-18-215-52-54.compute-1.amazonaws.com} "cd /home/ubuntu/FRONTEND/busan && pm2 start npm --name frontend -- run serve -- --port 3000"
+                    ssh -i ${pemPath} ${localUser}@${remote_server} "cd /home/ubuntu/FRONTEND/busan && pm2 start npm --name frontend -- run serve -- --port 3000"
                     """
                     sh 'echo "[WEB] SERVER ON"'
 					slackSend(channel: '#deployment-alert', color: '#00FF7F' , message: "[WEB] SERVER ON : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
