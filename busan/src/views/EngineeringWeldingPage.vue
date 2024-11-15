@@ -328,7 +328,7 @@ export default {
 }
 
 .car-part.moveToEquipment {
-  animation: moveToEquipment 2.5s ease forwards;
+  animation: moveToEquipment 1.5s ease forwards;
 }
 
 .car-part.moveToEnd {
