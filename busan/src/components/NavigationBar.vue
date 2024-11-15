@@ -7,14 +7,14 @@
       </div>
       <ul class="nav-links">
         <li>
-          <router-link to="/management">
-            <i class="fas fa-chart-line"></i> <span>경영지표</span>
-          </router-link>
+          <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/15/" target="_blank">
+            <i class="fas fa-chart-line"></i> <span>소셜 경영지표</span>
+          </a>
         </li>
         <li>
-          <router-link to="/social"> <!-- 소셜지표 링크 추가 -->
-            <i class="fas fa-comments"></i> <span>소셜지표</span> <!-- 아이콘으로 댓글 아이콘 사용 -->
-          </router-link>
+          <a href=http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/13/" target="_blank">
+            <i class="fas fa-chart-line"></i> <span>소셜 경영지표</span>
+          </a>
         </li>
         <li>
           <span><i class="fas fa-tools"></i> <span>엔지니어링 지표</span></span>
