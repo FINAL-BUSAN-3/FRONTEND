@@ -7,7 +7,7 @@
       </div>
       <ul class="nav-links">
         <li>
-          <span><i class="fas fa-tools"></i> <span>경영 지표</span></span>
+          <span><i class="fas fa-chart-pie"></i> <span>경영 지표</span></span>
           <ul>
             <li>
               <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/15/" target="_blank">
@@ -29,7 +29,7 @@
             <li><router-link to="/engineering/welding"><i class="fas fa-wrench"></i> <span> 용접</span></router-link></li>
             <li>
               <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/14/" target="_blank">
-                <i class="fas fa-chart-line"></i> <span>셀프 분석</span>
+                <i class="fas fa-search"></i> <span>셀프 분석</span>
               </a>
             </li>
           </ul>
