@@ -5,11 +5,6 @@
       <p>제품명 : {{ latestItem ? latestItem.item_no : 'N/A' }}</p>
       <p>시간 : {{ latestItem ? latestItem.trend_time : 'N/A' }}</p>
       <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : '판정 중' }}</p>
-      <p>
-        <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/14/" target="_blank">
-          데이터 분석 보러가기
-        </a>
-      </p>
     </div>
     <img :src="carImage" alt="Car Part" class="quality-car-image" />
   </div>
