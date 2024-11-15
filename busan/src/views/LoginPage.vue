@@ -48,7 +48,7 @@ export default {
       if (role === '경영진') {
         this.$router.push('/management'); // 경영진 대시보드
       } else if (role === '엔지니어') {
-        this.$router.push('/engineering/press'); // 엔지니어 대시보드
+        this.$router.push('/engineering/welding'); // 엔지니어 대시보드
       } else if (role === '모델 관리자') {
         this.$router.push('/model-management'); // 모델 관리 대시보드
       } else {
