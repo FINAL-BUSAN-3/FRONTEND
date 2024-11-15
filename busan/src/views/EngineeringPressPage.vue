@@ -7,9 +7,6 @@
       <p>시간 : {{ latestItem ? latestItem.working_time : 'N/A' }}</p>
       <p>양품 여부 : {{ latestItem && latestItem.prediction !== null ? latestItem.prediction : '판정 중' }}</p>
     </div>
-    <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/14/" target="_blank">
-          데이터 분석하기
-    </a>
     <img :src="pressPart" alt="Press Part" class="quality-press-part-image" />
   </div>
 
