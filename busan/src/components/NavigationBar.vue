@@ -12,7 +12,7 @@
           </a>
         </li>
         <li>
-          <a href=http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/13/" target="_blank">
+          <a href="http://ec2-100-24-7-128.compute-1.amazonaws.com:8088/superset/dashboard/13/" target="_blank">
             <i class="fas fa-chart-line"></i> <span>생산 경영지표</span>
           </a>
         </li>
